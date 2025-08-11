@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anagrafica Clienti - Web App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .cloud-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: #10b981;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .setup-banner {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .setup-banner:hover {
+            background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+        }
+
+        .setup-banner.hidden {
+            display: none;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+
+        .stat-label {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-right: 1px solid #475569;
+        }
+
+        th:first-child {
+            min-width: 200px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #1e293b;
+            background: #f8fafc;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        tbody tr:hover {
+            background: #f1f5f9;
+        }
+
+        .service-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: #4f46e5;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .modal h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .setup-modal {
+            background: white;
+            margin: 2% auto;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .setup-step {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-left: 4px solid #4f46e5;
+            border-radius: 8px;
+        }
+
+        .setup-step h4 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+        }
+
+        .firebase-config {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            th, td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .cloud-status {
+                position: static;
+                margin-top: 15px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="cloud-status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connessione in corso...</span>
+            </div>
+            <h1>🌐 Anagrafica Clienti Web</h1>
+            <p>Sistema professionale hostato su sito web con database cloud</p>
+        </div>
+
+        <div class="setup-banner" id="setupBanner" onclick="openSetupModal()">
+            ⚙️ CONFIGURAZIONE FIREBASE NECESSARIA - Clicca qui per le istruzioni (setup una tantum)
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalClients">0</div>
+                <div class="stat-label">Clienti Totali</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeServices">0</div>
+                <div class="stat-label">Servizi Attivi</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionRate">0%</div>
+                <div class="stat-label">Tasso Conversione</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastSync">Mai</div>
+                <div class="stat-label">Ultima Sincronizzazione</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Cerca clienti...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <button class="btn btn-primary" onclick="openModal()" id="addClientBtn">
+                ➕ Aggiungi Cliente
+            </button>
+            <button class="btn btn-success" onclick="syncData()" id="syncBtn">
+                ☁️ Sincronizza
+            </button>
+            <button class="btn btn-secondary" onclick="exportData()">
+                📥 Esporta CSV
+            </button>
+            <button class="btn btn-secondary" onclick="openSetupModal()">
+                ⚙️ Setup
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table id="clientTable">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Marchi</th>
+                        <th>Registrazione Marchi</th>
+                        <th>Contratto Licenza Uso Marchi</th>
+                        <th>Monitoraggio Marchi</th>
+                        <th>Consulenza Marchi già Registrati</th>
+                        <th>CRM Implementazione</th>
+                        <th>Web Agency</th>
+                        <th>Bandi Pubblici</th>
+                        <th>Perizia Base (PM)</th>
+                        <th>HR Audit</th>
+                        <th>Note</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="clientTableBody">
+                    <!-- I dati verranno caricati da Firebase -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal per aggiungere cliente -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <h2>➕ Aggiungi Nuovo Cliente</h2>
+            <form id="clientForm">
+                <div class="form-group">
+                    <label for="clientName">Nome Cliente *</label>
+                    <input type="text" id="clientName" required placeholder="Inserisci nome cliente">
+                </div>
+                <div class="form-group">
+                    <label for="clientNotes">Note</label>
+                    <textarea id="clientNotes" rows="3" placeholder="Note aggiuntive (opzionale)"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annulla</button>
+                    <button type="submit" class="btn btn-primary" id="saveClientBtn">Aggiungi Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal di setup Firebase -->
+    <div id="setupModal" class="modal">
+        <div class="setup-modal">
+            <h2>🔥 Configurazione Firebase (Solo Prima Volta)</h2>
+            <p style="margin-bottom: 30px; color: #64748b; font-size: 16px;">
+                Setup veloce e gratuito per abilitare il database cloud. Bastano 5 minuti! 🚀
+            </p>
+
+            <div class="setup-step">
+                <h4>🔥 Passo 1: Crea Progetto Firebase</h4>
+                <p>Vai su <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></p>
+                <ol style="margin-left: 20px;">
+                    <li>Clicca <strong>"Crea un progetto"</strong></li>
+                    <li>Nome progetto: "anagrafica-clienti"</li>
+                    <li>Disabilita Google Analytics (non serve)</li>
+                    <li>Clicca <strong>"Crea progetto"</strong></li>
+                </ol>
+            </div>
+
+            <div class="setup-step">
+                <h4>📱 Passo 2: Aggiungi App Web</h4>
+                <ol style="margin-left: 20px;">
+                    <li>Nel progetto, clicca l'icona <strong>&lt;/&gt;</strong> (Aggiungi app web)</li>
+                    <li>Nome app: "Anagrafica Clienti"</li>
+                    <li>NON spuntare "Configura anche Firebase Hosting"</li>
+                    <li>Clicca <strong>"Registra app"</strong></li>
+                    <li><strong>COPIA</strong> la configurazione che appare</li>
+                </ol>
+            </div>
+
+            <div class="setup-step">
+                <h4>🔧 Passo 3: Abilita Firestore</h4>
+                <ol style="margin-left: 20px;">
+                    <li>Nel menu a sinistra: <strong>"Firestore Database"</strong></li>
+                    <li>Clicca <strong>"Crea database"</strong></li>
+                    <li>Seleziona <strong>"Inizia in modalità test"</strong></li>
+                    <li>Scegli una location vicina (europe-west)</li>
+                    <li>Clicca <strong>"Fine"</strong></li>
+                </ol>
+            </div>
+
+            <div class="setup-step">
+                <h4>⚙️ Passo 4: Configura l'App</h4>
+                <p>Incolla qui la configurazione Firebase che hai copiato:</p>
+                <div class="form-group">
+                    <label for="firebaseConfig">Configurazione Firebase (JSON):</label>
+                    <textarea id="firebaseConfig" rows="8" placeholder='Incolla qui la configurazione, esempio:
+{
+  "apiKey": "AIza...",
+  "authDomain": "progetto.firebaseapp.com",
+  "projectId": "progetto",
+  "storageBucket": "progetto.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "1:123:web:abc123"
+}'></textarea>
+                </div>
+                <button class="btn btn-success" onclick="saveFirebaseConfig()">🔥 Attiva Firebase</button>
+            </div>
+
+            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <strong>💡 Dopo il setup:</strong><br>
+                • Il database sarà pronto all'uso<br>
+                • Tutti i soci potranno accedere al sito<br>
+                • Dati sincronizzati in tempo reale<br>
+                • Backup automatico su Firebase
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeSetupModal()">Chiudi</button>
+                <button type="button" class="btn btn-primary" onclick="testFirebase()">🧪 Testa Connessione</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Variabili globali
+        let db = null;
+        let clientsData = [];
+        let isOnline = false;
+
+        // Configurazione Firebase
+        function loadFirebaseConfig() {
+            const savedConfig = localStorage.getItem('firebaseConfig');
+            if (savedConfig) {
+                try {
+                    const config = JSON.parse(savedConfig);
+                    initializeFirebase(config);
+                    document.getElementById('setupBanner').classList.add('hidden');
+                    return true;
+                } catch (error) {
+                    console.error('Errore configurazione Firebase:', error);
+                    updateStatus('Errore configurazione', false);
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        function saveFirebaseConfig() {
+            const configText = document.getElementById('firebaseConfig').value.trim();
+            if (!configText) {
+                showNotification('Inserisci la configurazione Firebase', 'error');
+                return;
+            }
+
+            try {
+                const config = JSON.parse(configText);
+                localStorage.setItem('firebaseConfig', configText);
+                initializeFirebase(config);
+                document.getElementById('setupBanner').classList.add('hidden');
+                showNotification('Firebase configurato con successo! 🔥', 'success');
+                closeSetupModal();
+            } catch (error) {
+                showNotification('Configurazione JSON non valida', 'error');
+            }
+        }
+
+        function initializeFirebase(config) {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(config);
+                }
+                db = firebase.firestore();
+                updateStatus('Connesso', true);
+                loadData();
+            } catch (error) {
+                console.error('Errore inizializzazione Firebase:', error);
+                updateStatus('Errore Firebase', false);
+            }
+        }
+
+        // Gestione stato connessione
+        function updateStatus(text, online) {
+            isOnline = online;
+            document.getElementById('statusText').textContent = text;
+            const dot = document.getElementById('statusDot');
+            if (online) {
+                dot.classList.add('online');
+            } else {
+                dot.classList.remove('online');
+            }
+        }
+
+        // Caricamento dati da Firebase
+        async function loadData() {
+            if (!db) return;
+
+            try {
+                showLoading('syncBtn');
+                const snapshot = await db.collection('clients').orderBy('name').get();
+                clientsData = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    clientsData.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+
+                renderTable();
+                updateStats();
+                document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('it-IT');
+                
+                if (clientsData.length === 0) {
+                    // Aggiungi dati demo se il database è vuoto
+                    await addDemoData();
+                }
+            } catch (error) {
+                console.error('Errore caricamento dati:', error);
+                showNotification('Errore nel caricamento dati', 'error');
+                updateStatus('Errore caricamento', false);
+            } finally {
+                hideLoading('syncBtn');
+            }
+        }
+
+        // Aggiungi dati demo
+        async function addDemoData() {
+            const demoClient = {
+                name: 'Gianluca Madeddu',
+                services: {
+                    marchi: true,
+                    registrazione: false,
+                    licenza: true,
+                    monitoraggio: true,
+                    consulenza: false,
+                    crm: false,
+                    web: false,
+                    bandi: false,
+                    perizia: false,
+                    hr: false
+                },
+                notes: 'Cliente iniziale',
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await db.collection('clients').add(demoClient);
+                loadData();
+            } catch (error) {
+                console.error('Errore aggiunta demo:', error);
+            }
+        }
+
+        // Salvataggio dati su Firebase
+        async function saveClient(clientData) {
+            if (!db) {
+                showNotification('Database non configurato', 'error');
+                return;
+            }
+
+            try {
+                showLoading('saveClientBtn');
+                const docRef = await db.collection('clients').add({
+                    ...clientData,
+                    createdAt: new Date().toISOString()
+                });
+                
+                showNotification(`Cliente "${clientData.name}" aggiunto!`, 'success');
+                loadData();
+                return docRef.id;
+            } catch (error) {
+                console.error('Errore salvataggio:', error);
+                showNotification('Errore nel salvataggio', 'error');
+            } finally {
+                hideLoading('saveClientBtn');
+            }
+        }
+
+        // Aggiornamento servizio
+        async function updateClientService(clientId, serviceKey, value) {
+            if (!db) return;
+
+            try {
+                await db.collection('clients').doc(clientId).update({
+                    [`services.${serviceKey}`]: value,
+                    updatedAt: new Date().toISOString()
+                });
+                updateStats();
+            } catch (error) {
+                console.error('Errore aggiornamento:', error);
+                showNotification('Errore aggiornamento servizio', 'error');
+            }
+        }
+
+        // Aggiornamento note
+        async function updateClientNotes(clientId, notes) {
+            if (!db) return;
+
+            try {
+                await db.collection('clients').doc(clientId).update({
+                    notes: notes,
+                    updatedAt: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error('Errore aggiornamento note:', error);
+            }
+        }
+
+        // Eliminazione cliente
+        async function deleteClient(clientId) {
+            if (!db) return;
+
+            const client = clientsData.find(c => c.id === clientId);
+            if (!client) return;
+
+            if (confirm(`Sei sicuro di voler eliminare "${client.name}"?`)) {
+                try {
+                    await db.collection('clients').doc(clientId).delete();
+                    showNotification(`Cliente "${client.name}" eliminato`, 'info');
+                    loadData();
+                } catch (error) {
+                    console.error('Errore eliminazione:', error);
+                    showNotification('Errore eliminazione cliente', 'error');
+                }
+            }
+        }
+
+        // Renderizzazione tabella
+        function renderTable() {
+            const tableBody = document.getElementById('clientTableBody');
+            tableBody.innerHTML = '';
+
+            clientsData.forEach(client => {
+                const row = document.createElement('tr');
+                const services = client.services || {};
+                
+                row.innerHTML = `
+                    <td>${client.name}</td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.marchi ? 'checked' : ''} onchange="updateClientService('${client.id}', 'marchi', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.registrazione ? 'checked' : ''} onchange="updateClientService('${client.id}', 'registrazione', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.licenza ? 'checked' : ''} onchange="updateClientService('${client.id}', 'licenza', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.monitoraggio ? 'checked' : ''} onchange="updateClientService('${client.id}', 'monitoraggio', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.consulenza ? 'checked' : ''} onchange="updateClientService('${client.id}', 'consulenza', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.crm ? 'checked' : ''} onchange="updateClientService('${client.id}', 'crm', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.web ? 'checked' : ''} onchange="updateClientService('${client.id}', 'web', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.bandi ? 'checked' : ''} onchange="updateClientService('${client.id}', 'bandi', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.perizia ? 'checked' : ''} onchange="updateClientService('${client.id}', 'perizia', this.checked)"></td>
+                    <td><input type="checkbox" class="service-checkbox" ${services.hr ? 'checked' : ''} onchange="updateClientService('${client.id}', 'hr', this.checked)"></td>
+                    <td><input type="text" value="${client.notes || ''}" onchange="updateClientNotes('${client.id}', this.value)" style="border:none;background:transparent;width:100%;"></td>
+                    <td><button class="delete-btn" onclick="deleteClient('${client.id}')">🗑️</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Statistiche
+        function updateStats() {
+            const totalClients = clientsData.length;
+            let totalServices = 0;
+            let totalPossibleServices = 0;
+
+            clientsData.forEach(client => {
+                const services = client.services || {};
+                const serviceKeys = ['marchi', 'registrazione', 'licenza', 'monitoraggio', 'consulenza', 'crm', 'web', 'bandi', 'perizia', 'hr'];
+                
+                serviceKeys.forEach(key => {
+                    totalPossibleServices++;
+                    if (services[key]) totalServices++;
+                });
+            });
+
+            const completionRate = totalPossibleServices > 0 ? 
+                Math.round((totalServices / totalPossibleServices) * 100) : 0;
+
+            document.getElementById('totalClients').textContent = totalClients;
+            document.getElementById('activeServices').textContent = totalServices;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+        }
+
+        // Gestione modal
+        function openModal() {
+            document.getElementById('clientModal').style.display = 'block';
+            document.getElementById('clientName').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('clientModal').style.display = 'none';
+            document.getElementById('clientForm').reset();
+        }
+
+        function openSetupModal() {
+            document.getElementById('setupModal').style.display = 'block';
+        }
+
+        function closeSetupModal() {
+            document.getElementById('setupModal').style.display = 'none';
+        }
+
+        // Form submission
+        document.getElementById('clientForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('clientName').value.trim();
+            const notes = document.getElementById('clientNotes').value.trim();
+            
+            if (name) {
+                const clientData = {
+                    name: name,
+                    services: {
+                        marchi: false,
+                        registrazione: false,
+                        licenza: false,
+                        monitoraggio: false,
+                        consulenza: false,
+                        crm: false,
+                        web: false,
+                        bandi: false,
+                        perizia: false,
+                        hr: false
+                    },
+                    notes: notes
+                };
+                
+                await saveClient(clientData);
+                closeModal();
+            }
+        });
+
+        // Ricerca
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#clientTableBody tr');
+            
+            rows.forEach(row => {
+                const clientName = row.cells[0].textContent.toLowerCase();
+                row.style.display = clientName.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Sincronizzazione
+        async function syncData() {
+            await loadData();
+        }
+
+        // Test Firebase
+        async function testFirebase() {
+            if (!db) {
+                showNotification('Configura prima Firebase', 'error');
+                return;
+            }
+
+            try {
+                await db.collection('clients').limit(1).get();
+                showNotification('Connessione Firebase riuscita! 🔥', 'success');
+                updateStatus('Online', true);
+            } catch (error) {
+                showNotification('Errore connessione Firebase', 'error');
+                updateStatus('Offline', false);
+            }
+        }
+
+        // Esportazione CSV
+        function exportData() {
+            const headers = ['Cliente', 'Marchi', 'Registrazione', 'Licenza', 'Monitoraggio', 'Consulenza', 'CRM', 'Web Agency', 'Bandi', 'Perizia', 'HR Audit', 'Note'];
+            let csv = headers.join(',') + '\n';
+            
+            clientsData.forEach(client => {
+                const services = client.services || {};
+                const row = [
+                    `"${client.name}"`,
+                    services.marchi ? 'Sì' : 'No',
+                    services.registrazione ? 'Sì' : 'No',
+                    services.licenza ? 'Sì' : 'No',
+                    services.monitoraggio ? 'Sì' : 'No',
+                    services.consulenza ? 'Sì' : 'No',
+                    services.crm ? 'Sì' : 'No',
+                    services.web ? 'Sì' : 'No',
+                    services.bandi ? 'Sì' : 'No',
+                    services.perizia ? 'Sì' : 'No',
+                    services.hr ? 'Sì' : 'No',
+                    `"${client.notes || ''}"`
+                ];
+                csv += row.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'anagrafica-clienti-' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Utilità
+        function showLoading(buttonId) {
+            const btn = document.getElementById(buttonId);
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('loading');
+            }
+        }
+
+        function hideLoading(buttonId) {
+            const btn = document.getElementById(buttonId);
+            if (btn) {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Chiudi modal cliccando fuori
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!loadFirebaseConfig()) {
+                updateStatus('Non configurato', false);
+            }
+        });
+    </script>
+</body>
+</html>
