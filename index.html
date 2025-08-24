@@ -253,7 +253,7 @@
                             </div>
                             <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                            </svg>
+            </svg>
                         </div>
                     </div>
 
@@ -1010,6 +1010,68 @@
             if (activeElement) activeElement.textContent = clientiAttivi;
             if (revenueElement) revenueElement.textContent = `€${ricaviTotali.toLocaleString()}`;
             if (contrattiElement) contrattiElement.textContent = templateContrattiCount;
+            
+            // 🚀 SINCRONIZZA CON PORTALE MNS
+            sincronizzaRicaviConPortale(ricaviTotali);
+        }
+
+        // 🔗 SINCRONIZZAZIONE AUTOMATICA CON PORTALE MNS
+        function sincronizzaRicaviConPortale(ricaviTotali) {
+            try {
+                console.log(`💰 Invio ricavi al portale: €${ricaviTotali.toLocaleString()}`);
+                
+                // 1. Salva in variabili JavaScript globali (metodo principale)
+                window.ricavi_totali = ricaviTotali;
+                window.anagrafica_clienti_ricavi = ricaviTotali;
+                window.anagrafica_clienti_ricavi_totali = ricaviTotali;
+                
+                // 2. PostMessage per aggiornamento real-time
+                try {
+                    window.postMessage({
+                        type: 'ANAGRAFICA_RICAVI_UPDATE',
+                        ricavi: ricaviTotali,
+                        ricavi_totali: ricaviTotali,
+                        timestamp: new Date().toISOString(),
+                        source: 'anagrafica-clienti'
+                    }, '*');
+                } catch (e) {
+                    console.log('PostMessage locale non disponibile:', e);
+                }
+                
+                // 3. Messaggio per il portale centrale (se aperto)
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'ANAGRAFICA_RICAVI_TOTALI_UPDATE',
+                            ricaviTotali: ricaviTotali,
+                            source: 'anagrafica-clienti',
+                            timestamp: new Date().toISOString()
+                        }, '*');
+                    }
+                } catch (e) {
+                    console.log('PostMessage cross-frame non disponibile:', e);
+                }
+                
+                // 4. Dispatcha custom event per listener locali
+                try {
+                    const event = new CustomEvent('ricaviAggiornati', {
+                        detail: {
+                            ricavi: ricaviTotali,
+                            source: 'anagrafica-clienti',
+                            timestamp: new Date().toISOString()
+                        }
+                    });
+                    window.dispatchEvent(event);
+                } catch (e) {
+                    console.log('Custom event non disponibile:', e);
+                }
+                
+                console.log('✅ Sincronizzazione completata!');
+                console.log(`📊 Dati disponibili in: window.ricavi_totali = ${ricaviTotali}`);
+                
+            } catch (error) {
+                console.error('❌ Errore sincronizzazione ricavi:', error);
+            }
         }
 
         function updateServiziStats() {
