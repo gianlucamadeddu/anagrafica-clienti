@@ -3,1057 +3,2240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anagrafica Clienti - Web App</title>
+    <title>Sistema Gestionale Avanzato</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .cloud-status {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #ef4444;
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.online {
-            background: #10b981;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .setup-banner {
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-            color: white;
-            padding: 15px 30px;
-            text-align: center;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .setup-banner:hover {
-            background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
-        }
-
-        .setup-banner.hidden {
-            display: none;
-        }
-
-        .controls {
-            padding: 30px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
-        }
-
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
-            border: 2px solid #e2e8f0;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: #e2e8f0;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-        }
-
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-        }
-
-        .loading {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .loading::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: loading 1.5s infinite;
-        }
-
-        @keyframes loading {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 30px;
-            background: #f8fafc;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #4f46e5;
-        }
-
-        .stat-label {
-            color: #64748b;
-            margin-top: 5px;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            color: white;
-            padding: 15px 12px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-right: 1px solid #475569;
-        }
-
-        th:first-child {
-            min-width: 200px;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            border-right: 1px solid #e2e8f0;
-            text-align: center;
-        }
-
-        td:first-child {
-            text-align: left;
-            font-weight: 600;
-            color: #1e293b;
-            background: #f8fafc;
-            position: sticky;
-            left: 0;
-            z-index: 5;
-        }
-
-        tbody tr:hover {
-            background: #f1f5f9;
-        }
-
-        .service-checkbox {
-            width: 20px;
-            height: 20px;
-            accent-color: #4f46e5;
-            cursor: pointer;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-        }
-
-        .modal h2 {
-            color: #1e293b;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            resize: vertical;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-top: 30px;
-        }
-
-        .delete-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .delete-btn:hover {
-            background: #dc2626;
-            transform: translateY(-1px);
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            z-index: 1001;
-            transform: translateX(400px);
-            transition: all 0.3s ease;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        .notification.error {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        .notification.info {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-
-        .setup-modal {
-            background: white;
-            margin: 2% auto;
-            padding: 40px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .setup-step {
-            margin: 25px 0;
-            padding: 20px;
-            background: #f8fafc;
-            border-left: 4px solid #4f46e5;
-            border-radius: 8px;
-        }
-
-        .setup-step h4 {
-            color: #4f46e5;
-            margin-bottom: 10px;
-        }
-
-        .firebase-config {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 14px;
-            margin: 10px 0;
-            overflow-x: auto;
-        }
-
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            th, td {
-                padding: 8px;
-                font-size: 12px;
-            }
-
-            .cloud-status {
-                position: static;
-                margin-top: 15px;
-                justify-content: center;
-            }
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="cloud-status">
-                <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Connessione in corso...</span>
-            </div>
-            <h1>🌐 Anagrafica Clienti Web</h1>
-            <p>Sistema professionale hostato su sito web con database cloud</p>
-        </div>
+<body class="min-h-screen bg-gray-100">
 
-        <div class="setup-banner" id="setupBanner" onclick="openSetupModal()">
-            ⚙️ CONFIGURAZIONE FIREBASE NECESSARIA - Clicca qui per le istruzioni (setup una tantum)
-        </div>
-
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalClients">0</div>
-                <div class="stat-label">Clienti Totali</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="activeServices">0</div>
-                <div class="stat-label">Servizi Attivi</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="completionRate">0%</div>
-                <div class="stat-label">Tasso Conversione</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="lastSync">Mai</div>
-                <div class="stat-label">Ultima Sincronizzazione</div>
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-xl font-bold text-gray-800">
+                        🏢 Sistema Gestionale Avanzato
+                    </h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-gray-600" id="current-date">
+                        Sardegna, IT • <span id="date-display"></span>
+                    </div>
+                </div>
             </div>
         </div>
+    </header>
 
-        <div class="controls">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Cerca clienti...">
-                <span class="search-icon">🔍</span>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Navigation -->
+        <nav class="mb-8">
+            <div class="flex gap-1">
+                <button id="tab-dashboard" class="tab-button flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-blue-600 text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                    Dashboard
+                </button>
+                <button id="tab-clienti" class="tab-button flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-white text-gray-600 hover:bg-gray-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                    </svg>
+                    Gestione Clienti
+                </button>
+                <button id="tab-servizi" class="tab-button flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-white text-gray-600 hover:bg-gray-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                    </svg>
+                    Servizi & Prezzi
+                </button>
+                <button id="tab-contratti" class="tab-button flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-white text-gray-600 hover:bg-gray-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Template Contratti
+                </button>
             </div>
-            <button class="btn btn-primary" onclick="openModal()" id="addClientBtn">
-                ➕ Aggiungi Cliente
-            </button>
-            <button class="btn btn-success" onclick="syncData()" id="syncBtn">
-                ☁️ Sincronizza
-            </button>
-            <button class="btn btn-secondary" onclick="exportData()">
-                📥 Esporta CSV
-            </button>
-            <button class="btn btn-secondary" onclick="openSetupModal()">
-                ⚙️ Setup
-            </button>
+        </nav>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard-content" class="tab-content">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-700">Periodo:</label>
+                            <select id="filtro-periodo" class="border rounded-lg px-3 py-2 text-sm">
+                                <option value="sempre">Sempre</option>
+                                <option value="anno">Quest'Anno</option>
+                                <option value="mese">Questo Mese</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Ultimo aggiornamento: <span id="last-sync"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Clienti Totali</p>
+                                <p class="text-3xl font-bold text-gray-800" id="clienti-totali">3</p>
+                            </div>
+                            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Clienti Attivi</p>
+                                <p class="text-3xl font-bold text-green-600" id="clienti-attivi">2</p>
+                                <p class="text-xs text-gray-500" id="clienti-attivi-desc">Con servizi non scaduti</p>
+                            </div>
+                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Ricavi Totali</p>
+                                <p class="text-3xl font-bold text-indigo-600" id="ricavi-totali">€25,200</p>
+                                <p class="text-xs text-gray-500" id="periodo-ricavi">Sempre</p>
+                            </div>
+                            <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Template Contratti</p>
+                                <p class="text-3xl font-bold text-purple-600" id="template-contratti">9</p>
+                                <p class="text-xs text-gray-500" id="periodo-contratti">Disponibili</p>
+                            </div>
+                            <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grafici -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Ricavi Mensili -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-semibold mb-4">Ricavi Ultimi 6 Mesi</h3>
+                        <div class="space-y-3" id="ricavi-mensili">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">gennaio 2024</span>
+                                <span class="font-semibold">€2,000</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">febbraio 2024</span>
+                                <span class="font-semibold">€8,000</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">marzo 2024</span>
+                                <span class="font-semibold">€4,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Servizi Più Venduti -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-semibold mb-4">Servizi Più Richiesti</h3>
+                        <div class="space-y-3" id="servizi-richiesti">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Marchi</span>
+                                <span class="font-semibold">1 cliente</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">CRM e Implementazioni</span>
+                                <span class="font-semibold">1 cliente</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Web Agency</span>
+                                <span class="font-semibold">1 cliente</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="table-container">
-            <table id="clientTable">
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Marchi</th>
-                        <th>Registrazione Marchi</th>
-                        <th>Contratto Licenza Uso Marchi</th>
-                        <th>Monitoraggio Marchi</th>
-                        <th>Consulenza Marchi già Registrati</th>
-                        <th>CRM Implementazione</th>
-                        <th>Web Agency</th>
-                        <th>Bandi Pubblici</th>
-                        <th>Perizia Base (PM)</th>
-                        <th>HR Audit</th>
-                        <th>Note</th>
-                        <th>Azioni</th>
-                    </tr>
-                </thead>
-                <tbody id="clientTableBody">
-                    <!-- I dati verranno caricati da Firebase -->
-                </tbody>
-            </table>
+        <!-- Gestione Clienti Content -->
+        <div id="clienti-content" class="tab-content hidden">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-gray-800">Gestione Clienti</h1>
+                    <button id="nuovo-cliente-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Nuovo Cliente
+                    </button>
+                </div>
+
+                <!-- Filtri e Ricerca -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border">
+                    <div class="flex flex-wrap gap-4">
+                        <select id="filtro-stato-cliente" class="border rounded-lg px-3 py-2">
+                            <option value="">Tutti i clienti</option>
+                            <option value="attivo">Solo attivi</option>
+                            <option value="inattivo">Solo inattivi</option>
+                        </select>
+                        <input type="text" id="ricerca-cliente" placeholder="Cerca per nome, azienda, sottocategoria, partita IVA, telefono..." class="border rounded-lg px-3 py-2 flex-1 min-w-96">
+                        <button id="reset-ricerca" class="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600">Reset</button>
+                    </div>
+                </div>
+
+                <!-- Lista Clienti -->
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Cliente</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Azienda</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Sottocategoria</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Stato</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Servizi</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Valore Totale</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200" id="clienti-table-body">
+                            <!-- I clienti verranno inseriti qui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servizi Content -->
+        <div id="servizi-content" class="tab-content hidden">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-gray-800">Servizi & Prezzi</h1>
+                    <button id="nuovo-servizio-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Nuovo Servizio
+                    </button>
+                </div>
+
+                <!-- Statistiche Servizi -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Servizi Disponibili</p>
+                                <p class="text-3xl font-bold text-blue-600" id="servizi-disponibili">9</p>
+                            </div>
+                            <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Prezzo Medio</p>
+                                <p class="text-3xl font-bold text-green-600" id="prezzo-medio">€3,722</p>
+                            </div>
+                            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Più Richiesto</p>
+                                <p class="text-xl font-bold text-purple-600" id="servizio-top">CRM</p>
+                            </div>
+                            <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista Servizi -->
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Nome Servizio</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Prezzo Base</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Clienti Attivi</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Ricavo Totale</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Ultima Modifica</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200" id="servizi-table-body">
+                            <!-- I servizi verranno inseriti qui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template Contratti Content -->
+        <div id="contratti-content" class="tab-content hidden">
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-3xl font-bold text-gray-800">Template Contratti</h1>
+                    <button id="nuovo-contratto-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Carica Template
+                    </button>
+                </div>
+
+                <!-- Info Box -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <h4 class="font-semibold text-blue-900">Come Funziona</h4>
+                            <p class="text-blue-800 text-sm mt-1">
+                                Carica i template di contratti per ogni servizio. Usa i placeholder <code class="bg-blue-200 px-1 rounded">{{NOME}}</code>, <code class="bg-blue-200 px-1 rounded">{{AZIENDA}}</code>, <code class="bg-blue-200 px-1 rounded">{{PARTITA_IVA}}</code> ecc. che verranno sostituiti automaticamente con i dati del cliente quando generi il contratto PDF.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista Template Contratti -->
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Nome Template</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Servizio Collegato</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Tipo</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Data Caricamento</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200" id="contratti-table-body">
+                            <!-- I contratti verranno inseriti qui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal per aggiungere cliente -->
-    <div id="clientModal" class="modal">
-        <div class="modal-content">
-            <h2>➕ Aggiungi Nuovo Cliente</h2>
-            <form id="clientForm">
-                <div class="form-group">
-                    <label for="clientName">Nome Cliente *</label>
-                    <input type="text" id="clientName" required placeholder="Inserisci nome cliente">
+    <!-- Modal Contratto -->
+    <div id="contratto-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white rounded-lg w-full max-w-2xl">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold" id="contratto-modal-title">Carica Template Contratto</h2>
+                    <button id="close-contratto-modal" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
                 </div>
-                <div class="form-group">
-                    <label for="clientNotes">Note</label>
-                    <textarea id="clientNotes" rows="3" placeholder="Note aggiuntive (opzionale)"></textarea>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nome Template</label>
+                        <input type="text" id="contratto-nome" placeholder="Es. Contratto Registrazione Marchi" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Servizio Collegato</label>
+                        <select id="contratto-servizio" class="w-full border rounded-lg px-3 py-2">
+                            <option value="">Seleziona servizio...</option>
+                            <!-- Opzioni popolate dinamicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo Documento</label>
+                        <select id="contratto-tipo" class="w-full border rounded-lg px-3 py-2">
+                            <option value="contratto">Contratto</option>
+                            <option value="privacy">Informativa Privacy</option>
+                            <option value="preventivo">Format Preventivo</option>
+                            <option value="altro">Altro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Carica File Template</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                            <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <p class="text-gray-500 mb-2">Trascina il file qui o clicca per selezionare</p>
+                            <input type="file" id="contratto-file" class="hidden" accept=".pdf,.doc,.docx">
+                            <button type="button" onclick="document.getElementById('contratto-file').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                Seleziona File
+                            </button>
+                            <p class="text-xs text-gray-400 mt-2">PDF, DOC, DOCX (max 10MB)</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Placeholder Disponibili</label>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-700 mb-2">Usa questi placeholder nel tuo template:</p>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <code class="bg-white p-1 rounded">{{NOME}}</code>
+                                <code class="bg-white p-1 rounded">{{AZIENDA}}</code>
+                                <code class="bg-white p-1 rounded">{{EMAIL}}</code>
+                                <code class="bg-white p-1 rounded">{{TELEFONO}}</code>
+                                <code class="bg-white p-1 rounded">{{PARTITA_IVA}}</code>
+                                <code class="bg-white p-1 rounded">{{CODICE_FISCALE}}</code>
+                                <code class="bg-white p-1 rounded">{{INDIRIZZO}}</code>
+                                <code class="bg-white p-1 rounded">{{DATA_OGGI}}</code>
+                                <code class="bg-white p-1 rounded">{{PREZZO_SERVIZIO}}</code>
+                                <code class="bg-white p-1 rounded">{{NOME_SERVIZIO}}</code>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annulla</button>
-                    <button type="submit" class="btn btn-primary" id="saveClientBtn">Aggiungi Cliente</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal di setup Firebase -->
-    <div id="setupModal" class="modal">
-        <div class="setup-modal">
-            <h2>🔥 Configurazione Firebase (Solo Prima Volta)</h2>
-            <p style="margin-bottom: 30px; color: #64748b; font-size: 16px;">
-                Setup veloce e gratuito per abilitare il database cloud. Bastano 5 minuti! 🚀
-            </p>
-
-            <div class="setup-step">
-                <h4>🔥 Passo 1: Crea Progetto Firebase</h4>
-                <p>Vai su <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></p>
-                <ol style="margin-left: 20px;">
-                    <li>Clicca <strong>"Crea un progetto"</strong></li>
-                    <li>Nome progetto: "anagrafica-clienti"</li>
-                    <li>Disabilita Google Analytics (non serve)</li>
-                    <li>Clicca <strong>"Crea progetto"</strong></li>
-                </ol>
             </div>
 
-            <div class="setup-step">
-                <h4>📱 Passo 2: Aggiungi App Web</h4>
-                <ol style="margin-left: 20px;">
-                    <li>Nel progetto, clicca l'icona <strong>&lt;/&gt;</strong> (Aggiungi app web)</li>
-                    <li>Nome app: "Anagrafica Clienti"</li>
-                    <li>NON spuntare "Configura anche Firebase Hosting"</li>
-                    <li>Clicca <strong>"Registra app"</strong></li>
-                    <li><strong>COPIA</strong> la configurazione che appare</li>
-                </ol>
-            </div>
-
-            <div class="setup-step">
-                <h4>🔧 Passo 3: Abilita Firestore</h4>
-                <ol style="margin-left: 20px;">
-                    <li>Nel menu a sinistra: <strong>"Firestore Database"</strong></li>
-                    <li>Clicca <strong>"Crea database"</strong></li>
-                    <li>Seleziona <strong>"Inizia in modalità test"</strong></li>
-                    <li>Scegli una location vicina (europe-west)</li>
-                    <li>Clicca <strong>"Fine"</strong></li>
-                </ol>
-            </div>
-
-            <div class="setup-step">
-                <h4>⚙️ Passo 4: Configura l'App</h4>
-                <p>Incolla qui la configurazione Firebase che hai copiato:</p>
-                <div class="form-group">
-                    <label for="firebaseConfig">Configurazione Firebase (JSON):</label>
-                    <textarea id="firebaseConfig" rows="8" placeholder='Incolla qui la configurazione, esempio:
-{
-  "apiKey": "AIza...",
-  "authDomain": "progetto.firebaseapp.com",
-  "projectId": "progetto",
-  "storageBucket": "progetto.appspot.com",
-  "messagingSenderId": "123456789",
-  "appId": "1:123:web:abc123"
-}'></textarea>
-                </div>
-                <button class="btn btn-success" onclick="saveFirebaseConfig()">🔥 Attiva Firebase</button>
-            </div>
-
-            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <strong>💡 Dopo il setup:</strong><br>
-                • Il database sarà pronto all'uso<br>
-                • Tutti i soci potranno accedere al sito<br>
-                • Dati sincronizzati in tempo reale<br>
-                • Backup automatico su Firebase
-            </div>
-
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="closeSetupModal()">Chiudi</button>
-                <button type="button" class="btn btn-primary" onclick="testFirebase()">🧪 Testa Connessione</button>
+            <div class="p-6 border-t bg-gray-50 flex justify-end gap-3">
+                <button id="annulla-contratto-btn" class="px-4 py-2 border rounded-lg hover:bg-gray-100">Annulla</button>
+                <button id="salva-contratto-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Carica Template</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Modal Servizio -->
+    <div id="servizio-modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white rounded-lg w-full max-w-2xl">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold" id="servizio-modal-title">Nuovo Servizio</h2>
+                    <button id="close-servizio-modal" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nome Servizio</label>
+                        <input type="text" id="servizio-nome" placeholder="Es. Registrazione Marchi" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Prezzo Base (€)</label>
+                        <input type="number" id="servizio-prezzo" placeholder="0" class="w-full border rounded-lg px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Descrizione</label>
+                        <textarea id="servizio-descrizione" rows="3" placeholder="Descrizione del servizio..." class="w-full border rounded-lg px-3 py-2"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+                        <select id="servizio-categoria" class="w-full border rounded-lg px-3 py-2">
+                            <option value="legale">Servizi Legali</option>
+                            <option value="tecnologico">Servizi Tecnologici</option>
+                            <option value="consulenza">Consulenze</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="altro">Altro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t bg-gray-50 flex justify-end gap-3">
+                <button id="annulla-servizio-btn" class="px-4 py-2 border rounded-lg hover:bg-gray-100">Annulla</button>
+                <button id="salva-servizio-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Salva Servizio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cliente -->
+    <div id="cliente-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white rounded-lg w-full max-w-7xl max-h-[95vh] overflow-y-auto">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold" id="modal-title">Nuovo Cliente</h2>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-8">
+                <!-- Anagrafica -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Anagrafica Cliente</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="nome" placeholder="Nome e Cognome" class="border rounded-lg px-3 py-2">
+                        <input type="text" id="azienda" placeholder="Azienda" class="border rounded-lg px-3 py-2">
+                        <input type="email" id="email" placeholder="Email" class="border rounded-lg px-3 py-2">
+                        <input type="tel" id="telefono" placeholder="Telefono" class="border rounded-lg px-3 py-2">
+                        <input type="text" id="partitaIva" placeholder="Partita IVA" class="border rounded-lg px-3 py-2">
+                        <input type="text" id="codFiscale" placeholder="Codice Fiscale" class="border rounded-lg px-3 py-2">
+                        <input type="text" id="indirizzo" placeholder="Indirizzo Completo" class="border rounded-lg px-3 py-2 md:col-span-2">
+                        <select id="stato" class="border rounded-lg px-3 py-2">
+                            <option value="attivo">Attivo</option>
+                            <option value="inattivo">Inattivo</option>
+                            <option value="sospeso">Sospeso</option>
+                        </select>
+                        <select id="sottocategorie" class="border rounded-lg px-3 py-2">
+                            <option value="">Seleziona sottocategoria...</option>
+                            <option value="Azienda manifatturiera">Azienda manifatturiera</option>
+                            <option value="Agenzia creativa">Agenzia creativa</option>
+                            <option value="Studio consulenza">Studio consulenza</option>
+                            <option value="Servizi professionali">Servizi professionali</option>
+                            <option value="Commercio al dettaglio">Commercio al dettaglio</option>
+                            <option value="Settore sanitario">Settore sanitario</option>
+                            <option value="Settore alimentare">Settore alimentare</option>
+                            <option value="Edilizia e costruzioni">Edilizia e costruzioni</option>
+                            <option value="Trasporti e logistica">Trasporti e logistica</option>
+                            <option value="Agricoltura">Agricoltura</option>
+                            <option value="Altro">Altro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Informazioni Aggiuntive -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Informazioni Aggiuntive</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Privacy -->
+                        <div class="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+                            <div>
+                                <label class="font-medium text-gray-700">Privacy</label>
+                                <p class="text-sm text-gray-500">Consenso privacy acquisito</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="privacy" class="rounded">
+                                <label for="privacy" class="text-sm text-gray-600">Acquisito</label>
+                            </div>
+                        </div>
+
+                        <!-- Cerved -->
+                        <div class="flex items-center justify-between p-3 border rounded-lg bg-yellow-50">
+                            <div>
+                                <label class="font-medium text-gray-700">Cerved</label>
+                                <p class="text-sm text-gray-500">Verifica Cerved completata</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="cerved" class="rounded">
+                                <button type="button" onclick="apriCerved()" class="bg-yellow-600 text-white px-3 py-1 rounded text-sm hover:bg-yellow-700 flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                    Vai a Cerved
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Contratto Clienti -->
+                        <div class="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                            <div>
+                                <label class="font-medium text-gray-700">Contratto Clienti</label>
+                                <p class="text-sm text-gray-500">Contratto standard clienti</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="contratto-clienti" class="rounded">
+                                <button type="button" onclick="generaContratto('clienti')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                    Genera PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Contratto Partner -->
+                        <div class="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                            <div>
+                                <label class="font-medium text-gray-700">Contratto Partner</label>
+                                <p class="text-sm text-gray-500">Contratto partnership</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="contratto-partner" class="rounded">
+                                <button type="button" onclick="generaContratto('partner')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                    Genera PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Format Preventivi -->
+                        <div class="flex items-center justify-between p-3 border rounded-lg bg-blue-50 md:col-span-2 lg:col-span-1">
+                            <div>
+                                <label class="font-medium text-gray-700">Format Preventivi</label>
+                                <p class="text-sm text-gray-500">Template preventivi standard</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="format-preventivi" class="rounded">
+                                <button type="button" onclick="generaContratto('preventivi')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                    Genera PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Servizi -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Servizi del Cliente</h3>
+                        <button id="aggiungi-servizio-cliente-btn" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            Aggiungi Servizio
+                        </button>
+                    </div>
+                    
+                    <!-- Form aggiunta servizio (inizialmente nascosto) -->
+                    <div id="form-nuovo-servizio" class="hidden mb-4 p-4 border rounded-lg bg-blue-50">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Servizio</label>
+                                <select id="select-servizio" class="w-full border rounded px-2 py-1 text-sm">
+                                    <option value="">Seleziona servizio...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Prezzo Consigliato (€)</label>
+                                <input type="number" id="input-prezzo-consigliato" readonly class="w-full border rounded px-2 py-1 text-sm bg-gray-100" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Prezzo Applicato (€)</label>
+                                <input type="number" id="input-prezzo-applicato" class="w-full border rounded px-2 py-1 text-sm" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Data Inizio</label>
+                                <input type="date" id="input-data-inizio" class="w-full border rounded px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Data Scadenza</label>
+                                <input type="date" id="input-data-scadenza" class="w-full border rounded px-2 py-1 text-sm">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 mt-2">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Note Pricing</label>
+                                <input type="text" id="input-note-pricing" class="w-full border rounded px-2 py-1 text-sm" placeholder="Es: Sconto 10% cliente fedele, Maggiorazione urgenza...">
+                            </div>
+                        </div>
+                        <div class="flex gap-2 mt-3">
+                            <button id="conferma-servizio-btn" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                                Aggiungi
+                            </button>
+                            <button id="annulla-servizio-btn" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">
+                                Annulla
+                            </button>
+                            <div class="flex-1"></div>
+                            <div id="sconto-info" class="text-xs text-gray-600 self-center hidden">
+                                <!-- Info sconto/maggiorazione -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="servizi-container" class="space-y-3">
+                        <!-- I servizi verranno inseriti qui via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Documenti -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Documenti Cliente</h3>
+                        <button id="carica-documento-cliente-btn" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            Carica Documento
+                        </button>
+                    </div>
+                    
+                    <!-- Form caricamento documento (inizialmente nascosto) -->
+                    <div id="form-carica-documento" class="hidden mb-4 p-4 border rounded-lg bg-indigo-50">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Nome Documento</label>
+                                <input type="text" id="input-nome-documento" class="w-full border rounded px-2 py-1 text-sm" placeholder="Es. Contratto firmato">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">Tipo Documento</label>
+                                <select id="input-tipo-documento" class="w-full border rounded px-2 py-1 text-sm">
+                                    <option value="contratto">Contratto</option>
+                                    <option value="fattura">Fattura</option>
+                                    <option value="ricevuta">Ricevuta</option>
+                                    <option value="preventivo">Preventivo</option>
+                                    <option value="privacy">Privacy</option>
+                                    <option value="altro">Altro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 mb-1">File</label>
+                                <input type="file" id="input-file-documento" class="w-full border rounded px-2 py-1 text-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="conferma-documento-btn" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700">
+                                Carica
+                            </button>
+                            <button id="annulla-documento-btn" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">
+                                Annulla
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="documenti-container" class="space-y-2">
+                        <!-- I documenti verranno inseriti qui via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Rendiconto Finanziario -->
+                <div id="rendiconto-container" class="hidden">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Rendiconto Finanziario</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                            <div>
+                                <p class="text-2xl font-bold text-green-600" id="valore-totale">€0</p>
+                                <p class="text-sm text-gray-600">Valore Totale Contratti</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-blue-600" id="servizi-attivi-count">0</p>
+                                <p class="text-sm text-gray-600">Servizi Attivi</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-purple-600" id="valore-medio">€0</p>
+                                <p class="text-sm text-gray-600">Valore Medio Servizio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t bg-gray-50 flex justify-end gap-3">
+                <button id="annulla-btn" class="px-4 py-2 border rounded-lg hover:bg-gray-100">Annulla</button>
+                <button id="salva-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Salva Cliente</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Variabili globali
-        let db = null;
-        let clientsData = [];
-        let isOnline = false;
-
-        // Configurazione Firebase
-        function loadFirebaseConfig() {
-            const savedConfig = localStorage.getItem('firebaseConfig');
-            if (savedConfig) {
-                try {
-                    const config = JSON.parse(savedConfig);
-                    initializeFirebase(config);
-                    document.getElementById('setupBanner').classList.add('hidden');
-                    return true;
-                } catch (error) {
-                    console.error('Errore configurazione Firebase:', error);
-                    updateStatus('Errore configurazione', false);
-                    return false;
-                }
-            }
-            return false;
-        }
-
-        function saveFirebaseConfig() {
-            const configText = document.getElementById('firebaseConfig').value.trim();
-            if (!configText) {
-                showNotification('Inserisci la configurazione Firebase', 'error');
-                return;
-            }
-
-            try {
-                const config = JSON.parse(configText);
-                localStorage.setItem('firebaseConfig', configText);
-                initializeFirebase(config);
-                document.getElementById('setupBanner').classList.add('hidden');
-                showNotification('Firebase configurato con successo! 🔥', 'success');
-                closeSetupModal();
-            } catch (error) {
-                showNotification('Configurazione JSON non valida', 'error');
-            }
-        }
-
-        function initializeFirebase(config) {
-            try {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(config);
-                }
-                db = firebase.firestore();
-                updateStatus('Connesso', true);
-                loadData();
-            } catch (error) {
-                console.error('Errore inizializzazione Firebase:', error);
-                updateStatus('Errore Firebase', false);
-            }
-        }
-
-        // Gestione stato connessione
-        function updateStatus(text, online) {
-            isOnline = online;
-            document.getElementById('statusText').textContent = text;
-            const dot = document.getElementById('statusDot');
-            if (online) {
-                dot.classList.add('online');
-            } else {
-                dot.classList.remove('online');
-            }
-        }
-
-        // Caricamento dati da Firebase
-        async function loadData() {
-            if (!db) return;
-
-            try {
-                showLoading('syncBtn');
-                const snapshot = await db.collection('clients').orderBy('name').get();
-                clientsData = [];
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    clientsData.push({
-                        id: doc.id,
-                        ...data
-                    });
-                });
-
-                renderTable();
-                updateStats();
-                document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('it-IT');
-                
-                if (clientsData.length === 0) {
-                    // Aggiungi dati demo se il database è vuoto
-                    await addDemoData();
-                }
-            } catch (error) {
-                console.error('Errore caricamento dati:', error);
-                showNotification('Errore nel caricamento dati', 'error');
-                updateStatus('Errore caricamento', false);
-            } finally {
-                hideLoading('syncBtn');
-            }
-        }
-
-        // Aggiungi dati demo
-        async function addDemoData() {
-            const demoClient = {
-                name: 'Gianluca Madeddu',
-                services: {
-                    marchi: true,
-                    registrazione: false,
-                    licenza: true,
-                    monitoraggio: true,
-                    consulenza: false,
-                    crm: false,
-                    web: false,
-                    bandi: false,
-                    perizia: false,
-                    hr: false
+        // Dati mock
+        const mockClienti = [
+            {
+                id: 1,
+                nome: "Rossi Mario",
+                azienda: "Rossi SRL",
+                email: "mario.rossi@email.com",
+                telefono: "+39 334 1234567",
+                partitaIva: "IT12345678901",
+                codFiscale: "RSSMRA85M15F205X",
+                indirizzo: "Via Roma 123, 09124 Cagliari",
+                stato: "attivo",
+                sottocategorie: "Azienda manifatturiera",
+                informazioniAggiuntive: {
+                    privacy: true,
+                    cerved: true,
+                    contrattoClienti: false,
+                    contrattoPartner: true,
+                    formatPreventivi: false
                 },
-                notes: 'Cliente iniziale',
-                createdAt: new Date().toISOString()
-            };
-
-            try {
-                await db.collection('clients').add(demoClient);
-                loadData();
-            } catch (error) {
-                console.error('Errore aggiunta demo:', error);
-            }
-        }
-
-        // Salvataggio dati su Firebase
-        async function saveClient(clientData) {
-            if (!db) {
-                showNotification('Database non configurato', 'error');
-                return;
-            }
-
-            try {
-                showLoading('saveClientBtn');
-                const docRef = await db.collection('clients').add({
-                    ...clientData,
-                    createdAt: new Date().toISOString()
-                });
-                
-                showNotification(`Cliente "${clientData.name}" aggiunto!`, 'success');
-                loadData();
-                return docRef.id;
-            } catch (error) {
-                console.error('Errore salvataggio:', error);
-                showNotification('Errore nel salvataggio', 'error');
-            } finally {
-                hideLoading('saveClientBtn');
-            }
-        }
-
-        // Aggiornamento servizio
-        async function updateClientService(clientId, serviceKey, value) {
-            if (!db) return;
-
-            try {
-                await db.collection('clients').doc(clientId).update({
-                    [`services.${serviceKey}`]: value,
-                    updatedAt: new Date().toISOString()
-                });
-                updateStats();
-            } catch (error) {
-                console.error('Errore aggiornamento:', error);
-                showNotification('Errore aggiornamento servizio', 'error');
-            }
-        }
-
-        // Aggiornamento note
-        async function updateClientNotes(clientId, notes) {
-            if (!db) return;
-
-            try {
-                await db.collection('clients').doc(clientId).update({
-                    notes: notes,
-                    updatedAt: new Date().toISOString()
-                });
-            } catch (error) {
-                console.error('Errore aggiornamento note:', error);
-            }
-        }
-
-        // Eliminazione cliente
-        async function deleteClient(clientId) {
-            if (!db) return;
-
-            const client = clientsData.find(c => c.id === clientId);
-            if (!client) return;
-
-            if (confirm(`Sei sicuro di voler eliminare "${client.name}"?`)) {
-                try {
-                    await db.collection('clients').doc(clientId).delete();
-                    showNotification(`Cliente "${client.name}" eliminato`, 'info');
-                    loadData();
-                } catch (error) {
-                    console.error('Errore eliminazione:', error);
-                    showNotification('Errore eliminazione cliente', 'error');
-                }
-            }
-        }
-
-        // Renderizzazione tabella
-        function renderTable() {
-            const tableBody = document.getElementById('clientTableBody');
-            tableBody.innerHTML = '';
-
-            clientsData.forEach(client => {
-                const row = document.createElement('tr');
-                const services = client.services || {};
-                
-                row.innerHTML = `
-                    <td>${client.name}</td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.marchi ? 'checked' : ''} onchange="updateClientService('${client.id}', 'marchi', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.registrazione ? 'checked' : ''} onchange="updateClientService('${client.id}', 'registrazione', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.licenza ? 'checked' : ''} onchange="updateClientService('${client.id}', 'licenza', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.monitoraggio ? 'checked' : ''} onchange="updateClientService('${client.id}', 'monitoraggio', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.consulenza ? 'checked' : ''} onchange="updateClientService('${client.id}', 'consulenza', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.crm ? 'checked' : ''} onchange="updateClientService('${client.id}', 'crm', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.web ? 'checked' : ''} onchange="updateClientService('${client.id}', 'web', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.bandi ? 'checked' : ''} onchange="updateClientService('${client.id}', 'bandi', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.perizia ? 'checked' : ''} onchange="updateClientService('${client.id}', 'perizia', this.checked)"></td>
-                    <td><input type="checkbox" class="service-checkbox" ${services.hr ? 'checked' : ''} onchange="updateClientService('${client.id}', 'hr', this.checked)"></td>
-                    <td><input type="text" value="${client.notes || ''}" onchange="updateClientNotes('${client.id}', this.value)" style="border:none;background:transparent;width:100%;"></td>
-                    <td><button class="delete-btn" onclick="deleteClient('${client.id}')">🗑️</button></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Statistiche
-        function updateStats() {
-            const totalClients = clientsData.length;
-            let totalServices = 0;
-            let totalPossibleServices = 0;
-
-            clientsData.forEach(client => {
-                const services = client.services || {};
-                const serviceKeys = ['marchi', 'registrazione', 'licenza', 'monitoraggio', 'consulenza', 'crm', 'web', 'bandi', 'perizia', 'hr'];
-                
-                serviceKeys.forEach(key => {
-                    totalPossibleServices++;
-                    if (services[key]) totalServices++;
-                });
-            });
-
-            const completionRate = totalPossibleServices > 0 ? 
-                Math.round((totalServices / totalPossibleServices) * 100) : 0;
-
-            document.getElementById('totalClients').textContent = totalClients;
-            document.getElementById('activeServices').textContent = totalServices;
-            document.getElementById('completionRate').textContent = completionRate + '%';
-        }
-
-        // Gestione modal
-        function openModal() {
-            document.getElementById('clientModal').style.display = 'block';
-            document.getElementById('clientName').focus();
-        }
-
-        function closeModal() {
-            document.getElementById('clientModal').style.display = 'none';
-            document.getElementById('clientForm').reset();
-        }
-
-        function openSetupModal() {
-            document.getElementById('setupModal').style.display = 'block';
-        }
-
-        function closeSetupModal() {
-            document.getElementById('setupModal').style.display = 'none';
-        }
-
-        // Form submission
-        document.getElementById('clientForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('clientName').value.trim();
-            const notes = document.getElementById('clientNotes').value.trim();
-            
-            if (name) {
-                const clientData = {
-                    name: name,
-                    services: {
-                        marchi: false,
-                        registrazione: false,
-                        licenza: false,
-                        monitoraggio: false,
-                        consulenza: false,
-                        crm: false,
-                        web: false,
-                        bandi: false,
-                        perizia: false,
-                        hr: false
+                servizi: [
+                    { 
+                        nome: "Marchi", 
+                        prezzoConsigliato: 2000,
+                        prezzoApplicato: 1800,
+                        prezzo: 1800,
+                        dataInizio: "2024-01-15", 
+                        dataScadenza: "2024-12-31",
+                        notePricing: "Sconto 10% cliente storico"
                     },
-                    notes: notes
-                };
-                
-                await saveClient(clientData);
-                closeModal();
+                    { 
+                        nome: "Web Agency", 
+                        prezzoConsigliato: 4000,
+                        prezzoApplicato: 4500,
+                        prezzo: 4500,
+                        dataInizio: "2024-03-01", 
+                        dataScadenza: "2024-12-31",
+                        notePricing: "Maggiorazione per urgenza progetto"
+                    }
+                ],
+                documenti: [
+                    { nome: "Contratto_Marchi.pdf", data: "2024-01-15", tipo: "contratto" },
+                    { nome: "Fattura_001.pdf", data: "2024-01-31", tipo: "fattura" }
+                ],
+                dataInserimento: "2024-01-15",
+                ultimoAggiornamento: "2024-08-20"
+            },
+            {
+                id: 2,
+                nome: "Bianchi Laura",
+                azienda: "Design Studio",
+                email: "laura.bianchi@design.com",
+                telefono: "+39 345 7654321",
+                partitaIva: "IT98765432109",
+                codFiscale: "BNCLAR80F45B354D",
+                indirizzo: "Corso Vittorio 456, 07100 Sassari",
+                stato: "attivo",
+                sottocategorie: "Agenzia creativa",
+                informazioniAggiuntive: {
+                    privacy: true,
+                    cerved: false,
+                    contrattoClienti: true,
+                    contrattoPartner: false,
+                    formatPreventivi: true
+                },
+                servizi: [
+                    { 
+                        nome: "CRM e Implementazioni", 
+                        prezzoConsigliato: 8000,
+                        prezzoApplicato: 8000,
+                        prezzo: 8000,
+                        dataInizio: "2024-02-01", 
+                        dataScadenza: "2024-11-30",
+                        notePricing: ""
+                    }
+                ],
+                documenti: [
+                    { nome: "Preventivo_CRM.pdf", data: "2024-02-01", tipo: "preventivo" }
+                ],
+                dataInserimento: "2024-02-01",
+                ultimoAggiornamento: "2024-08-18"
+            },
+            {
+                id: 3,
+                nome: "Verdi Giuseppe",
+                azienda: "Consulenze Avanzate",
+                email: "g.verdi@consulenze.it",
+                telefono: "+39 347 9876543",
+                partitaIva: "IT11223344556",
+                codFiscale: "VRDGPP75R10G273F",
+                indirizzo: "Piazza Garibaldi 89, 09170 Oristano",
+                stato: "inattivo",
+                sottocategorie: "Studio consulenza",
+                informazioniAggiuntive: {
+                    privacy: true,
+                    cerved: true,
+                    contrattoClienti: true,
+                    contrattoPartner: true,
+                    formatPreventivi: false
+                },
+                servizi: [
+                    { 
+                        nome: "Consulenze Strategiche", 
+                        prezzoConsigliato: 5000,
+                        prezzoApplicato: 5000,
+                        prezzo: 5000,
+                        dataInizio: "2024-01-01", 
+                        dataScadenza: "2024-06-30",
+                        notePricing: ""
+                    }
+                ],
+                documenti: [],
+                dataInserimento: "2024-01-01",
+                ultimoAggiornamento: "2024-06-30"
             }
-        });
+        ];
 
-        // Ricerca
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#clientTableBody tr');
-            
-            rows.forEach(row => {
-                const clientName = row.cells[0].textContent.toLowerCase();
-                row.style.display = clientName.includes(searchTerm) ? '' : 'none';
-            });
-        });
-
-        // Sincronizzazione
-        async function syncData() {
-            await loadData();
-        }
-
-        // Test Firebase
-        async function testFirebase() {
-            if (!db) {
-                showNotification('Configura prima Firebase', 'error');
-                return;
+        const servizi = [
+            { 
+                id: 1,
+                nome: "Marchi", 
+                prezzoBase: 2000, 
+                descrizione: "Registrazione e gestione marchi",
+                categoria: "legale",
+                ultimaModifica: "2024-08-15"
+            },
+            { 
+                id: 2,
+                nome: "Contratti Licenza d'uso o Cessione Marchi", 
+                prezzoBase: 1000,
+                descrizione: "Contratti per licenze e cessioni",
+                categoria: "legale",
+                ultimaModifica: "2024-07-20"
+            },
+            { 
+                id: 3,
+                nome: "CRM e Implementazioni", 
+                prezzoBase: 8000,
+                descrizione: "Sistemi CRM personalizzati",
+                categoria: "tecnologico",
+                ultimaModifica: "2024-08-10"
+            },
+            { 
+                id: 4,
+                nome: "Web Agency", 
+                prezzoBase: 4000,
+                descrizione: "Sviluppo siti web e applicazioni",
+                categoria: "tecnologico",
+                ultimaModifica: "2024-08-05"
+            },
+            { 
+                id: 5,
+                nome: "Bandi", 
+                prezzoBase: 3000,
+                descrizione: "Gestione e supporto bandi pubblici",
+                categoria: "consulenza",
+                ultimaModifica: "2024-08-01"
+            },
+            { 
+                id: 6,
+                nome: "Perizie", 
+                prezzoBase: 5000,
+                descrizione: "Perizie tecniche specializzate",
+                categoria: "consulenza",
+                ultimaModifica: "2024-07-30"
+            },
+            { 
+                id: 7,
+                nome: "HR - Audit", 
+                prezzoBase: 4500,
+                descrizione: "Audit risorse umane e organizzazione",
+                categoria: "consulenza",
+                ultimaModifica: "2024-08-08"
+            },
+            { 
+                id: 8,
+                nome: "Consulenze Strategiche", 
+                prezzoBase: 5000,
+                descrizione: "Consulenza strategica aziendale",
+                categoria: "consulenza",
+                ultimaModifica: "2024-08-12"
+            },
+            { 
+                id: 9,
+                nome: "Calcolo Risparmi Fiscali", 
+                prezzoBase: 1000,
+                descrizione: "Analisi ottimizzazione fiscale",
+                categoria: "legale",
+                ultimaModifica: "2024-07-25"
             }
+        ];
 
-            try {
-                await db.collection('clients').limit(1).get();
-                showNotification('Connessione Firebase riuscita! 🔥', 'success');
-                updateStatus('Online', true);
-            } catch (error) {
-                showNotification('Errore connessione Firebase', 'error');
-                updateStatus('Offline', false);
+        const templateContratti = [
+            {
+                id: 1,
+                nome: "Contratto Registrazione Marchi",
+                servizioId: 1,
+                servizioNome: "Marchi",
+                tipo: "contratto",
+                file: "contratto_marchi.pdf",
+                dataCaricamento: "2024-01-15"
+            },
+            {
+                id: 2,
+                nome: "Template CRM Implementation",
+                servizioId: 3,
+                servizioNome: "CRM e Implementazioni",
+                tipo: "contratto",
+                file: "contratto_crm.docx",
+                dataCaricamento: "2024-02-01"
+            },
+            {
+                id: 3,
+                nome: "Informativa Privacy GDPR",
+                servizioId: null,
+                servizioNome: "Generale",
+                tipo: "privacy",
+                file: "privacy_gdpr.pdf",
+                dataCaricamento: "2024-01-10"
             }
-        }
+        ];
 
-        // Esportazione CSV
-        function exportData() {
-            const headers = ['Cliente', 'Marchi', 'Registrazione', 'Licenza', 'Monitoraggio', 'Consulenza', 'CRM', 'Web Agency', 'Bandi', 'Perizia', 'HR Audit', 'Note'];
-            let csv = headers.join(',') + '\n';
-            
-            clientsData.forEach(client => {
-                const services = client.services || {};
-                const row = [
-                    `"${client.name}"`,
-                    services.marchi ? 'Sì' : 'No',
-                    services.registrazione ? 'Sì' : 'No',
-                    services.licenza ? 'Sì' : 'No',
-                    services.monitoraggio ? 'Sì' : 'No',
-                    services.consulenza ? 'Sì' : 'No',
-                    services.crm ? 'Sì' : 'No',
-                    services.web ? 'Sì' : 'No',
-                    services.bandi ? 'Sì' : 'No',
-                    services.perizia ? 'Sì' : 'No',
-                    services.hr ? 'Sì' : 'No',
-                    `"${client.notes || ''}"`
-                ];
-                csv += row.join(',') + '\n';
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'anagrafica-clienti-' + new Date().toISOString().split('T')[0] + '.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        // Utilità
-        function showLoading(buttonId) {
-            const btn = document.getElementById(buttonId);
-            if (btn) {
-                btn.disabled = true;
-                btn.classList.add('loading');
-            }
-        }
-
-        function hideLoading(buttonId) {
-            const btn = document.getElementById(buttonId);
-            if (btn) {
-                btn.disabled = false;
-                btn.classList.remove('loading');
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            const existing = document.querySelector('.notification');
-            if (existing) existing.remove();
-
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => notification.classList.add('show'), 100);
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        // Chiudi modal cliccando fuori
-        window.onclick = function(event) {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        }
+        let clienti = [...mockClienti];
+        let serviziDisponibili = [...servizi];
+        let contratti = [...templateContratti];
+        let currentCliente = null;
+        let currentServizio = null;
+        let currentContratto = null;
+        let clienteServiziTemp = [];
+        let clienteDocumentiTemp = [];
 
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
-            if (!loadFirebaseConfig()) {
-                updateStatus('Non configurato', false);
+            try {
+                updateDateTime();
+                updateDashboard('sempre');
+                updateServiziStats();
+                renderClientiTable();
+                renderServiziTable();
+                renderContrattiTable();
+                initEventListeners();
+                
+                setInterval(updateDateTime, 60000);
+            } catch (error) {
+                console.error('Errore durante l\'inizializzazione:', error);
+            }
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const dateElement = document.getElementById('date-display');
+            const syncElement = document.getElementById('last-sync');
+            
+            if (dateElement) dateElement.textContent = now.toLocaleDateString('it-IT');
+            if (syncElement) syncElement.textContent = now.toLocaleTimeString('it-IT');
+        }
+
+        function updateDashboard() {
+            const clientiTotali = clienti.length;
+            const clientiAttivi = clienti.filter(c => c.stato === 'attivo').length;
+            const ricaviTotali = clienti.reduce((total, cliente) => {
+                return total + cliente.servizi.reduce((sum, servizio) => {
+                    return sum + (servizio.prezzoApplicato || servizio.prezzo);
+                }, 0);
+            }, 0);
+            const templateContrattiCount = contratti.length;
+
+            const totalElement = document.getElementById('clienti-totali');
+            const activeElement = document.getElementById('clienti-attivi');
+            const revenueElement = document.getElementById('ricavi-totali');
+            const contrattiElement = document.getElementById('template-contratti');
+
+            if (totalElement) totalElement.textContent = clientiTotali;
+            if (activeElement) activeElement.textContent = clientiAttivi;
+            if (revenueElement) revenueElement.textContent = `€${ricaviTotali.toLocaleString()}`;
+            if (contrattiElement) contrattiElement.textContent = templateContrattiCount;
+        }
+
+        function updateServiziStats() {
+            if (!serviziDisponibili || serviziDisponibili.length === 0) return;
+            
+            const prezzoMedio = Math.round(serviziDisponibili.reduce((sum, s) => sum + s.prezzoBase, 0) / serviziDisponibili.length);
+            
+            const serviziCount = {};
+            clienti.forEach(cliente => {
+                cliente.servizi.forEach(servizio => {
+                    serviziCount[servizio.nome] = (serviziCount[servizio.nome] || 0) + 1;
+                });
+            });
+            
+            const servizioTop = Object.keys(serviziCount).reduce((a, b) => 
+                serviziCount[a] > serviziCount[b] ? a : b, 'N/A'
+            );
+
+            const availableElement = document.getElementById('servizi-disponibili');
+            const avgElement = document.getElementById('prezzo-medio');
+            const topElement = document.getElementById('servizio-top');
+
+            if (availableElement) availableElement.textContent = serviziDisponibili.length;
+            if (avgElement) avgElement.textContent = `€${prezzoMedio.toLocaleString()}`;
+            if (topElement) {
+                const displayName = servizioTop.length > 15 ? servizioTop.substring(0, 15) + '...' : servizioTop;
+                topElement.textContent = displayName;
+            }
+        }
+
+        function renderClientiTable() {
+            const tbody = document.getElementById('clienti-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+
+            // Applica filtri
+            const filtroStato = document.getElementById('filtro-stato-cliente')?.value || '';
+            const ricerca = document.getElementById('ricerca-cliente')?.value.toLowerCase() || '';
+
+            let clientiFiltrati = clienti.filter(cliente => {
+                const passaStato = !filtroStato || cliente.stato === filtroStato;
+                const passaRicerca = !ricerca || 
+                    cliente.nome.toLowerCase().includes(ricerca) ||
+                    cliente.azienda.toLowerCase().includes(ricerca) ||
+                    cliente.email.toLowerCase().includes(ricerca) ||
+                    cliente.telefono.includes(ricerca) ||
+                    cliente.partitaIva.toLowerCase().includes(ricerca) ||
+                    (cliente.sottocategorie && cliente.sottocategorie.toLowerCase().includes(ricerca));
+                
+                return passaStato && passaRicerca;
+            });
+
+            clientiFiltrati.forEach(cliente => {
+                const valoreTotale = cliente.servizi.reduce((sum, s) => sum + (s.prezzoApplicato || s.prezzo), 0);
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div>
+                            <div class="font-medium text-gray-900">${cliente.nome}</div>
+                            <div class="text-sm text-gray-500">${cliente.email}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${cliente.azienda}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${cliente.sottocategorie || 'Non specificata'}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs rounded-full ${
+                            cliente.stato === 'attivo' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                        }">
+                            ${cliente.stato}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        ${cliente.servizi.length} servizio${cliente.servizi.length !== 1 ? 'i' : ''}
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        €${valoreTotale.toLocaleString()}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex gap-2">
+                            <button onclick="viewCliente(${cliente.id})" class="p-1 text-blue-600 hover:bg-blue-100 rounded" title="Visualizza/Modifica">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderServiziTable() {
+            const tbody = document.getElementById('servizi-table-body');
+            if (!tbody || !serviziDisponibili) return;
+            
+            tbody.innerHTML = '';
+
+            serviziDisponibili.forEach(servizio => {
+                const clientiAttivi = clienti.filter(cliente => 
+                    cliente.servizi.some(s => s.nome === servizio.nome)
+                ).length;
+                
+                const ricavoTotale = clienti.reduce((total, cliente) => {
+                    return total + cliente.servizi
+                        .filter(s => s.nome === servizio.nome)
+                        .reduce((sum, s) => sum + (s.prezzoApplicato || s.prezzo), 0);
+                }, 0);
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div>
+                            <div class="font-medium text-gray-900">${servizio.nome}</div>
+                            <div class="text-sm text-gray-500">${servizio.descrizione || 'Nessuna descrizione'}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">€${servizio.prezzoBase.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${clientiAttivi}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-green-600">€${ricavoTotale.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${new Date(servizio.ultimaModifica).toLocaleDateString('it-IT')}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex gap-2">
+                            <button onclick="editServizio(${servizio.id})" class="p-1 text-blue-600 hover:bg-blue-100 rounded">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                            <button onclick="deleteServizio(${servizio.id})" class="p-1 text-red-600 hover:bg-red-100 rounded">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderContrattiTable() {
+            const tbody = document.getElementById('contratti-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+
+            contratti.forEach(contratto => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div>
+                            <div class="font-medium text-gray-900">${contratto.nome}</div>
+                            <div class="text-sm text-gray-500">${contratto.file}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${contratto.servizioNome}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs rounded-full ${
+                            contratto.tipo === 'contratto' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-green-100 text-green-800'
+                        }">
+                            ${contratto.tipo}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${new Date(contratto.dataCaricamento).toLocaleDateString('it-IT')}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex gap-2">
+                            <button onclick="downloadTemplate(${contratto.id})" class="p-1 text-green-600 hover:bg-green-100 rounded" title="Scarica Template">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                </svg>
+                            </button>
+                            <button onclick="editContratto(${contratto.id})" class="p-1 text-blue-600 hover:bg-blue-100 rounded" title="Modifica">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </button>
+                            <button onclick="deleteContratto(${contratto.id})" class="p-1 text-red-600 hover:bg-red-100 rounded" title="Elimina">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function initEventListeners() {
+            try {
+                // Tab navigation
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const tabId = this.id.replace('tab-', '');
+                        switchTab(tabId);
+                    });
+                });
+
+                // Ricerca clienti
+                const ricercaCliente = document.getElementById('ricerca-cliente');
+                const filtroStato = document.getElementById('filtro-stato-cliente');
+                const resetRicerca = document.getElementById('reset-ricerca');
+
+                if (ricercaCliente) ricercaCliente.addEventListener('input', renderClientiTable);
+                if (filtroStato) filtroStato.addEventListener('change', renderClientiTable);
+                if (resetRicerca) {
+                    resetRicerca.addEventListener('click', () => {
+                        if (ricercaCliente) ricercaCliente.value = '';
+                        if (filtroStato) filtroStato.value = '';
+                        renderClientiTable();
+                    });
+                }
+
+                // Modal controls - Cliente
+                const nuovoClienteBtn = document.getElementById('nuovo-cliente-btn');
+                if (nuovoClienteBtn) {
+                    nuovoClienteBtn.addEventListener('click', () => {
+                        currentCliente = null;
+                        openClienteModal();
+                    });
+                }
+                
+                const closeModal = document.getElementById('close-modal');
+                const annullaBtn = document.getElementById('annulla-btn');
+                
+                if (closeModal) closeModal.addEventListener('click', closeClienteModal);
+                if (annullaBtn) annullaBtn.addEventListener('click', closeClienteModal);
+                
+                const salvaClienteBtn = document.getElementById('salva-btn');
+                if (salvaClienteBtn) salvaClienteBtn.addEventListener('click', salvaCliente);
+                
+                // Modal controls - Servizi  
+                const nuovoServizioBtn = document.getElementById('nuovo-servizio-btn');
+                if (nuovoServizioBtn) {
+                    nuovoServizioBtn.addEventListener('click', () => {
+                        currentServizio = null;
+                        openServizioModal();
+                    });
+                }
+                
+                const closeServizioModal = document.getElementById('close-servizio-modal');
+                const annullaServizioBtn = document.getElementById('annulla-servizio-btn');
+                const salvaServizioBtn = document.getElementById('salva-servizio-btn');
+                
+                if (closeServizioModal) closeServizioModal.addEventListener('click', () => document.getElementById('servizio-modal').classList.add('hidden'));
+                if (annullaServizioBtn) annullaServizioBtn.addEventListener('click', () => document.getElementById('servizio-modal').classList.add('hidden'));
+                if (salvaServizioBtn) salvaServizioBtn.addEventListener('click', salvaServizio);
+                
+                // Modal controls - Contratti
+                const nuovoContrattoBtn = document.getElementById('nuovo-contratto-btn');
+                if (nuovoContrattoBtn) {
+                    nuovoContrattoBtn.addEventListener('click', () => {
+                        currentContratto = null;
+                        openContrattoModal();
+                    });
+                }
+                
+                const closeContrattoModal = document.getElementById('close-contratto-modal');
+                const annullaContrattoBtn = document.getElementById('annulla-contratto-btn');
+                const salvaContrattoBtn = document.getElementById('salva-contratto-btn');
+                
+                if (closeContrattoModal) closeContrattoModal.addEventListener('click', () => document.getElementById('contratto-modal').classList.add('hidden'));
+                if (annullaContrattoBtn) annullaContrattoBtn.addEventListener('click', () => document.getElementById('contratto-modal').classList.add('hidden'));
+                if (salvaContrattoBtn) salvaContrattoBtn.addEventListener('click', salvaContratto);
+                
+                // Gestori per aggiunta servizi ai clienti
+                const aggiungiServizioBtn = document.getElementById('aggiungi-servizio-cliente-btn');
+                const confermaServizioBtn = document.getElementById('conferma-servizio-btn');
+                const annullaServizioClienteBtn = document.getElementById('annulla-servizio-btn');
+                const selectServizio = document.getElementById('select-servizio');
+                
+                if (aggiungiServizioBtn) aggiungiServizioBtn.addEventListener('click', mostraFormServizio);
+                if (confermaServizioBtn) confermaServizioBtn.addEventListener('click', aggiungiServizioAlCliente);
+                if (annullaServizioClienteBtn) annullaServizioClienteBtn.addEventListener('click', nascondiFormServizio);
+                if (selectServizio) selectServizio.addEventListener('change', aggiornaPrezzoServizio);
+
+                // Gestori per caricamento documenti
+                const caricaDocumentoBtn = document.getElementById('carica-documento-cliente-btn');
+                const confermaDocumentoBtn = document.getElementById('conferma-documento-btn');
+                const annullaDocumentoBtn = document.getElementById('annulla-documento-btn');
+                
+                if (caricaDocumentoBtn) caricaDocumentoBtn.addEventListener('click', mostraFormDocumento);
+                if (confermaDocumentoBtn) confermaDocumentoBtn.addEventListener('click', caricaDocumentoCliente);
+                if (annullaDocumentoBtn) annullaDocumentoBtn.addEventListener('click', nascondiFormDocumento);
+
+                // Click outside modals to close
+                const clienteModal = document.getElementById('cliente-modal');
+                const servizioModal = document.getElementById('servizio-modal');
+                const contrattoModal = document.getElementById('contratto-modal');
+                
+                if (clienteModal) {
+                    clienteModal.addEventListener('click', function(e) {
+                        if (e.target === this) closeClienteModal();
+                    });
+                }
+                
+                if (servizioModal) {
+                    servizioModal.addEventListener('click', function(e) {
+                        if (e.target === this) this.classList.add('hidden');
+                    });
+                }
+
+                if (contrattoModal) {
+                    contrattoModal.addEventListener('click', function(e) {
+                        if (e.target === this) this.classList.add('hidden');
+                    });
+                }
+            } catch (error) {
+                console.error('Errore nell\'inizializzazione degli event listeners:', error);
+            }
+        }
+
+        function switchTab(tabId) {
+            try {
+                // Update tab buttons
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.className = 'tab-button flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-white text-gray-600 hover:bg-gray-100';
+                });
+                const activeTab = document.getElementById(`tab-${tabId}`);
+                if (activeTab) {
+                    activeTab.className = 'tab-button flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-blue-600 text-white';
+                }
+
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                const activeContent = document.getElementById(`${tabId}-content`);
+                if (activeContent) {
+                    activeContent.classList.remove('hidden');
+                }
+                
+                // Ricarica dati se necessario
+                if (tabId === 'servizi') {
+                    updateServiziStats();
+                    renderServiziTable();
+                } else if (tabId === 'contratti') {
+                    renderContrattiTable();
+                } else if (tabId === 'clienti') {
+                    renderClientiTable();
+                }
+            } catch (error) {
+                console.error('Errore nel cambio tab:', error);
+            }
+        }
+
+        // Funzioni Cliente
+        function viewCliente(clienteId) {
+            currentCliente = clienti.find(c => c.id === clienteId);
+            openClienteModal();
+        }
+
+        function openClienteModal() {
+            const modal = document.getElementById('cliente-modal');
+            const modalTitle = document.getElementById('modal-title');
+            
+            if (!modal || !modalTitle) return;
+            
+            if (currentCliente) {
+                modalTitle.textContent = `Cliente: ${currentCliente.nome}`;
+                populateClienteForm(currentCliente);
+            } else {
+                modalTitle.textContent = 'Nuovo Cliente';
+                clearClienteForm();
+            }
+            
+            populateServiziDropdown();
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeClienteModal() {
+            const modal = document.getElementById('cliente-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                currentCliente = null;
+            }
+        }
+
+        function populateClienteForm(cliente) {
+            const fields = ['nome', 'azienda', 'email', 'telefono', 'partitaIva', 'codFiscale', 'indirizzo', 'stato', 'sottocategorie'];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.value = cliente[field] || '';
+                }
+            });
+            
+            // Popola informazioni aggiuntive
+            if (cliente.informazioniAggiuntive) {
+                const privacy = document.getElementById('privacy');
+                const cerved = document.getElementById('cerved');
+                const contrattoClienti = document.getElementById('contratto-clienti');
+                const contrattoPartner = document.getElementById('contratto-partner');
+                const formatPreventivi = document.getElementById('format-preventivi');
+                
+                if (privacy) privacy.checked = cliente.informazioniAggiuntive.privacy || false;
+                if (cerved) cerved.checked = cliente.informazioniAggiuntive.cerved || false;
+                if (contrattoClienti) contrattoClienti.checked = cliente.informazioniAggiuntive.contrattoClienti || false;
+                if (contrattoPartner) contrattoPartner.checked = cliente.informazioniAggiuntive.contrattoPartner || false;
+                if (formatPreventivi) formatPreventivi.checked = cliente.informazioniAggiuntive.formatPreventivi || false;
+            }
+            
+            clienteServiziTemp = [...(cliente.servizi || [])];
+            clienteDocumentiTemp = [...(cliente.documenti || [])];
+            
+            renderServizi(clienteServiziTemp);
+            renderDocumenti(clienteDocumentiTemp);
+            
+            if (clienteServiziTemp.length > 0) {
+                renderRendiconto(clienteServiziTemp);
+                const rendicontoContainer = document.getElementById('rendiconto-container');
+                if (rendicontoContainer) {
+                    rendicontoContainer.classList.remove('hidden');
+                }
+            }
+        }
+
+        function clearClienteForm() {
+            const fields = ['nome', 'azienda', 'email', 'telefono', 'partitaIva', 'codFiscale', 'indirizzo'];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.value = '';
+                }
+            });
+            
+            const statoElement = document.getElementById('stato');
+            const sottocategorieElement = document.getElementById('sottocategorie');
+            if (statoElement) statoElement.value = 'attivo';
+            if (sottocategorieElement) sottocategorieElement.value = '';
+            
+            // Reset informazioni aggiuntive
+            const checkboxes = ['privacy', 'cerved', 'contratto-clienti', 'contratto-partner', 'format-preventivi'];
+            checkboxes.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.checked = false;
+            });
+            
+            clienteServiziTemp = [];
+            clienteDocumentiTemp = [];
+            
+            renderServizi([]);
+            renderDocumenti([]);
+            nascondiFormServizio();
+            nascondiFormDocumento();
+            
+            const rendicontoContainer = document.getElementById('rendiconto-container');
+            if (rendicontoContainer) {
+                rendicontoContainer.classList.add('hidden');
+            }
+        }
+
+        // Funzione per aprire Cerved
+        function apriCerved() {
+            const nome = document.getElementById('nome').value.trim();
+            const azienda = document.getElementById('azienda').value.trim();
+            const partitaIva = document.getElementById('partitaIva').value.trim();
+            
+            let url = 'https://cerved.com';
+            
+            // Se abbiamo dati cliente, potresti personalizzare la ricerca
+            if (azienda) {
+                // Alcuni siti permettono di passare parametri di ricerca nell'URL
+                // url += '/search?q=' + encodeURIComponent(azienda);
+            }
+            
+            window.open(url, '_blank');
+            
+            // Aggiorna il checkbox se non già selezionato
+            const cervedCheckbox = document.getElementById('cerved');
+            if (cervedCheckbox && !cervedCheckbox.checked) {
+                cervedCheckbox.checked = confirm('Hai completato la verifica Cerved per questo cliente?');
+            }
+        }
+
+        function populateServiziDropdown() {
+            try {
+                const selectElement = document.getElementById('select-servizio');
+                if (!selectElement) {
+                    console.warn('Elemento select-servizio non trovato');
+                    return;
+                }
+                
+                selectElement.innerHTML = '<option value="">Seleziona servizio...</option>';
+                
+                serviziDisponibili.forEach(servizio => {
+                    const option = document.createElement('option');
+                    option.value = servizio.id;
+                    option.textContent = servizio.nome;
+                    option.dataset.prezzo = servizio.prezzoBase;
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Errore nel popolare il dropdown servizi:', error);
+            }
+        }
+
+        function mostraFormServizio() {
+            const formElement = document.getElementById('form-nuovo-servizio');
+            if (formElement) {
+                formElement.classList.remove('hidden');
+                
+                const oggi = new Date();
+                const scadenza = new Date(oggi);
+                scadenza.setFullYear(scadenza.getFullYear() + 1);
+                
+                const dataInizioElement = document.getElementById('input-data-inizio');
+                const dataScadenzaElement = document.getElementById('input-data-scadenza');
+                
+                if (dataInizioElement) dataInizioElement.value = oggi.toISOString().split('T')[0];
+                if (dataScadenzaElement) dataScadenzaElement.value = scadenza.toISOString().split('T')[0];
+            }
+        }
+
+        function nascondiFormServizio() {
+            const formElement = document.getElementById('form-nuovo-servizio');
+            if (formElement) {
+                formElement.classList.add('hidden');
+                
+                const selectServizio = document.getElementById('select-servizio');
+                const inputPrezzoConsigliato = document.getElementById('input-prezzo-consigliato');
+                const inputPrezzoApplicato = document.getElementById('input-prezzo-applicato');
+                const inputDataInizio = document.getElementById('input-data-inizio');
+                const inputDataScadenza = document.getElementById('input-data-scadenza');
+                const inputNotePricing = document.getElementById('input-note-pricing');
+                
+                if (selectServizio) selectServizio.value = '';
+                if (inputPrezzoConsigliato) inputPrezzoConsigliato.value = '';
+                if (inputPrezzoApplicato) inputPrezzoApplicato.value = '';
+                if (inputDataInizio) inputDataInizio.value = '';
+                if (inputDataScadenza) inputDataScadenza.value = '';
+                if (inputNotePricing) inputNotePricing.value = '';
+            }
+        }
+
+        function aggiornaPrezzoServizio() {
+            const selectElement = document.getElementById('select-servizio');
+            const prezzoConsigliato = document.getElementById('input-prezzo-consigliato');
+            const prezzoApplicato = document.getElementById('input-prezzo-applicato');
+            const scontoInfo = document.getElementById('sconto-info');
+            
+            if (!selectElement || !prezzoConsigliato || !prezzoApplicato) return;
+            
+            const selectedOption = selectElement.selectedOptions[0];
+            if (selectedOption && selectedOption.dataset.prezzo) {
+                const prezzoBase = parseFloat(selectedOption.dataset.prezzo);
+                prezzoConsigliato.value = prezzoBase;
+                prezzoApplicato.value = prezzoBase;
+                
+                if (scontoInfo) {
+                    scontoInfo.classList.add('hidden');
+                }
+                
+                prezzoApplicato.removeEventListener('input', calcolaDifferenzaPrezzo);
+                prezzoApplicato.addEventListener('input', calcolaDifferenzaPrezzo);
+            } else {
+                prezzoConsigliato.value = '';
+                prezzoApplicato.value = '';
+                if (scontoInfo) {
+                    scontoInfo.classList.add('hidden');
+                }
+            }
+        }
+
+        function calcolaDifferenzaPrezzo() {
+            const prezzoConsigliato = document.getElementById('input-prezzo-consigliato');
+            const prezzoApplicato = document.getElementById('input-prezzo-applicato');
+            const scontoInfo = document.getElementById('sconto-info');
+            
+            if (!prezzoConsigliato || !prezzoApplicato || !scontoInfo) return;
+            
+            const consigliato = parseFloat(prezzoConsigliato.value);
+            const applicato = parseFloat(prezzoApplicato.value);
+            
+            if (consigliato && applicato && consigliato !== applicato) {
+                const differenza = applicato - consigliato;
+                const percentuale = Math.round((differenza / consigliato) * 100);
+                
+                if (differenza > 0) {
+                    scontoInfo.innerHTML = `<span class="text-red-600">↗ Maggiorazione: +€${differenza.toFixed(2)} (+${percentuale}%)</span>`;
+                } else {
+                    scontoInfo.innerHTML = `<span class="text-green-600">↘ Sconto: €${Math.abs(differenza).toFixed(2)} (${Math.abs(percentuale)}%)</span>`;
+                }
+                scontoInfo.classList.remove('hidden');
+            } else {
+                scontoInfo.classList.add('hidden');
+            }
+        }
+
+        function aggiungiServizioAlCliente() {
+            const selectServizio = document.getElementById('select-servizio');
+            const inputPrezzoConsigliato = document.getElementById('input-prezzo-consigliato');
+            const inputPrezzoApplicato = document.getElementById('input-prezzo-applicato');
+            const inputDataInizio = document.getElementById('input-data-inizio');
+            const inputDataScadenza = document.getElementById('input-data-scadenza');
+            const inputNotePricing = document.getElementById('input-note-pricing');
+            
+            if (!selectServizio || !inputPrezzoApplicato || !inputDataInizio || !inputDataScadenza) return;
+            
+            const servizioId = selectServizio.value;
+            const prezzoConsigliato = parseFloat(inputPrezzoConsigliato.value);
+            const prezzoApplicato = parseFloat(inputPrezzoApplicato.value);
+            const dataInizio = inputDataInizio.value;
+            const dataScadenza = inputDataScadenza.value;
+            const notePricing = inputNotePricing.value;
+            
+            if (!servizioId || !prezzoApplicato || !dataInizio || !dataScadenza) {
+                alert('Compila tutti i campi per aggiungere il servizio');
+                return;
+            }
+            
+            const servizio = serviziDisponibili.find(s => s.id == servizioId);
+            if (!servizio) return;
+            
+            const servizioEsistente = clienteServiziTemp.find(s => s.nome === servizio.nome);
+            if (servizioEsistente) {
+                alert('Questo servizio è già presente per il cliente');
+                return;
+            }
+            
+            const nuovoServizio = {
+                nome: servizio.nome,
+                prezzoConsigliato: prezzoConsigliato,
+                prezzoApplicato: prezzoApplicato,
+                prezzo: prezzoApplicato, // Per compatibilità
+                dataInizio: dataInizio,
+                dataScadenza: dataScadenza,
+                notePricing: notePricing
+            };
+            
+            clienteServiziTemp.push(nuovoServizio);
+            renderServizi(clienteServiziTemp);
+            
+            if (clienteServiziTemp.length > 0) {
+                renderRendiconto(clienteServiziTemp);
+                const rendicontoContainer = document.getElementById('rendiconto-container');
+                if (rendicontoContainer) {
+                    rendicontoContainer.classList.remove('hidden');
+                }
+            }
+            
+            nascondiFormServizio();
+        }
+
+        function rimuoviServizioCliente(index) {
+            if (confirm('Sei sicuro di voler rimuovere questo servizio?')) {
+                clienteServiziTemp.splice(index, 1);
+                renderServizi(clienteServiziTemp);
+                
+                if (clienteServiziTemp.length > 0) {
+                    renderRendiconto(clienteServiziTemp);
+                } else {
+                    const rendicontoContainer = document.getElementById('rendiconto-container');
+                    if (rendicontoContainer) {
+                        rendicontoContainer.classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        function renderServizi(servizi) {
+            const container = document.getElementById('servizi-container');
+            if (!container) return;
+            
+            if (servizi.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">Nessun servizio attivo</div>';
+                return;
+            }
+            
+            container.innerHTML = servizi.map((servizio, index) => {
+                const prezzoConsigliato = servizio.prezzoConsigliato || servizio.prezzo;
+                const prezzoApplicato = servizio.prezzoApplicato || servizio.prezzo;
+                const differenza = prezzoApplicato - prezzoConsigliato;
+                const hasDifferenza = Math.abs(differenza) > 0.01;
+                
+                let badgeSconto = '';
+                if (hasDifferenza) {
+                    if (differenza > 0) {
+                        const percentuale = Math.round((differenza / prezzoConsigliato) * 100);
+                        badgeSconto = `<span class="inline-block ml-2 px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">+${percentuale}%</span>`;
+                    } else {
+                        const percentuale = Math.round((Math.abs(differenza) / prezzoConsigliato) * 100);
+                        badgeSconto = `<span class="inline-block ml-2 px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">-${percentuale}%</span>`;
+                    }
+                }
+                
+                return `
+                    <div class="border rounded-lg p-4 bg-gray-50">
+                        <div class="flex justify-between items-start">
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 flex-1">
+                                <div>
+                                    <label class="text-xs text-gray-500">Servizio</label>
+                                    <p class="font-medium">${servizio.nome}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">Prezzo Listino</label>
+                                    <p class="text-sm text-gray-600">€${prezzoConsigliato.toLocaleString()}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">Prezzo Applicato</label>
+                                    <p class="font-medium text-gray-900">€${prezzoApplicato.toLocaleString()}${badgeSconto}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">Inizio</label>
+                                    <p class="text-sm">${new Date(servizio.dataInizio).toLocaleDateString('it-IT')}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500">Scadenza</label>
+                                    <p class="text-sm">${new Date(servizio.dataScadenza).toLocaleDateString('it-IT')}</p>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <button onclick="rimuoviServizioCliente(${index})" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        ${servizio.notePricing ? `
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <label class="text-xs text-gray-500">Note Pricing</label>
+                                <p class="text-sm text-blue-700 italic">${servizio.notePricing}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Funzioni per gestione documenti
+        function mostraFormDocumento() {
+            const formElement = document.getElementById('form-carica-documento');
+            if (formElement) {
+                formElement.classList.remove('hidden');
+            }
+        }
+
+        function nascondiFormDocumento() {
+            const formElement = document.getElementById('form-carica-documento');
+            if (formElement) {
+                formElement.classList.add('hidden');
+                
+                const inputNome = document.getElementById('input-nome-documento');
+                const inputTipo = document.getElementById('input-tipo-documento');
+                const inputFile = document.getElementById('input-file-documento');
+                
+                if (inputNome) inputNome.value = '';
+                if (inputTipo) inputTipo.value = 'contratto';
+                if (inputFile) inputFile.value = '';
+            }
+        }
+
+        function caricaDocumentoCliente() {
+            const inputNome = document.getElementById('input-nome-documento');
+            const inputTipo = document.getElementById('input-tipo-documento');
+            const inputFile = document.getElementById('input-file-documento');
+            
+            if (!inputNome || !inputTipo || !inputFile) return;
+            
+            const nome = inputNome.value.trim();
+            const tipo = inputTipo.value;
+            const file = inputFile.files[0];
+            
+            if (!nome || !file) {
+                alert('Inserisci nome documento e seleziona un file');
+                return;
+            }
+            
+            const nuovoDocumento = {
+                nome: nome,
+                tipo: tipo,
+                file: file.name,
+                data: new Date().toISOString().split('T')[0]
+            };
+            
+            clienteDocumentiTemp.push(nuovoDocumento);
+            renderDocumenti(clienteDocumentiTemp);
+            nascondiFormDocumento();
+        }
+
+        function rimuoviDocumentoCliente(index) {
+            if (confirm('Sei sicuro di voler rimuovere questo documento?')) {
+                clienteDocumentiTemp.splice(index, 1);
+                renderDocumenti(clienteDocumentiTemp);
+            }
+        }
+
+        function renderDocumenti(documenti) {
+            const container = document.getElementById('documenti-container');
+            if (!container) return;
+            
+            if (documenti.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">Nessun documento caricato</div>';
+                return;
+            }
+            
+            container.innerHTML = documenti.map((doc, index) => `
+                <div class="flex items-center justify-between p-3 border rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <div>
+                            <p class="font-medium">${doc.nome}</p>
+                            <p class="text-sm text-gray-500">${doc.tipo} - ${new Date(doc.data).toLocaleDateString('it-IT')}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="scaricaDocumento('${doc.nome}')" class="text-blue-600 hover:text-blue-800 text-sm">Scarica</button>
+                        <button onclick="rimuoviDocumentoCliente(${index})" class="text-red-600 hover:text-red-800 text-sm">Rimuovi</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRendiconto(servizi) {
+            const valoreTotaleListino = servizi.reduce((sum, s) => sum + (s.prezzoConsigliato || s.prezzo), 0);
+            const valoreTotaleApplicato = servizi.reduce((sum, s) => sum + (s.prezzoApplicato || s.prezzo), 0);
+            const countServizi = servizi.length;
+            const valoreMedioApplicato = Math.round(valoreTotaleApplicato / countServizi);
+            const differenzaTotale = valoreTotaleApplicato - valoreTotaleListino;
+            
+            const valoreTotaleElement = document.getElementById('valore-totale');
+            const serviziAttiviElement = document.getElementById('servizi-attivi-count');
+            const valoreMedioElement = document.getElementById('valore-medio');
+            
+            if (valoreTotaleElement) {
+                valoreTotaleElement.innerHTML = `
+                    €${valoreTotaleApplicato.toLocaleString()}
+                    ${Math.abs(differenzaTotale) > 0.01 ? `
+                        <div class="text-sm font-normal ${differenzaTotale >= 0 ? 'text-red-600' : 'text-green-600'}">
+                            Listino: €${valoreTotaleListino.toLocaleString()} 
+                            ${differenzaTotale >= 0 ? `(+€${differenzaTotale.toLocaleString()})` : `(€${differenzaTotale.toLocaleString()})`}
+                        </div>
+                    ` : ''}
+                `;
+            }
+            if (serviziAttiviElement) serviziAttiviElement.textContent = countServizi;
+            if (valoreMedioElement) valoreMedioElement.textContent = `€${valoreMedioApplicato.toLocaleString()}`;
+        }
+
+        function salvaCliente() {
+            try {
+                const nome = document.getElementById('nome').value.trim();
+                const azienda = document.getElementById('azienda').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const telefono = document.getElementById('telefono').value.trim();
+                const partitaIva = document.getElementById('partitaIva').value.trim();
+                const codFiscale = document.getElementById('codFiscale').value.trim();
+                const indirizzo = document.getElementById('indirizzo').value.trim();
+                const stato = document.getElementById('stato').value;
+                const sottocategorie = document.getElementById('sottocategorie').value.trim();
+
+                const informazioniAggiuntive = {
+                    privacy: document.getElementById('privacy').checked,
+                    cerved: document.getElementById('cerved').checked,
+                    contrattoClienti: document.getElementById('contratto-clienti').checked,
+                    contrattoPartner: document.getElementById('contratto-partner').checked,
+                    formatPreventivi: document.getElementById('format-preventivi').checked
+                };
+
+                if (!nome || !azienda || !email) {
+                    alert('Per favore compila almeno Nome, Azienda ed Email');
+                    return;
+                }
+
+                if (currentCliente) {
+                    const index = clienti.findIndex(c => c.id === currentCliente.id);
+                    if (index !== -1) {
+                        clienti[index] = {
+                            ...currentCliente,
+                            nome, azienda, email, telefono, partitaIva,
+                            codFiscale, indirizzo, stato, sottocategorie,
+                            informazioniAggiuntive,
+                            servizi: [...clienteServiziTemp],
+                            documenti: [...clienteDocumentiTemp],
+                            ultimoAggiornamento: new Date().toISOString().split('T')[0]
+                        };
+                    }
+                } else {
+                    const maxId = clienti.length > 0 ? Math.max(...clienti.map(c => c.id)) : 0;
+                    const nuovoCliente = {
+                        id: maxId + 1,
+                        nome, azienda, email, telefono, partitaIva,
+                        codFiscale, indirizzo, stato, sottocategorie,
+                        informazioniAggiuntive,
+                        servizi: [...clienteServiziTemp],
+                        documenti: [...clienteDocumentiTemp],
+                        dataInserimento: new Date().toISOString().split('T')[0],
+                        ultimoAggiornamento: new Date().toISOString().split('T')[0]
+                    };
+                    clienti.push(nuovoCliente);
+                }
+
+                updateDashboard();
+                updateServiziStats();
+                renderClientiTable();
+                closeClienteModal();
+                
+                alert(currentCliente ? 'Cliente aggiornato con successo!' : 'Cliente creato con successo!');
+            } catch (error) {
+                console.error('Errore nel salvare il cliente:', error);
+                alert('Errore nel salvare il cliente');
+            }
+        }
+
+        // Funzioni per gestione servizi
+        function openServizioModal() {
+            const modal = document.getElementById('servizio-modal');
+            const title = document.getElementById('servizio-modal-title');
+            
+            if (!modal || !title) return;
+            
+            if (currentServizio) {
+                title.textContent = `Modifica: ${currentServizio.nome}`;
+                populateServizioForm(currentServizio);
+            } else {
+                title.textContent = 'Nuovo Servizio';
+                clearServizioForm();
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function populateServizioForm(servizio) {
+            const nomeElement = document.getElementById('servizio-nome');
+            const prezzoElement = document.getElementById('servizio-prezzo');
+            const descrizioneElement = document.getElementById('servizio-descrizione');
+            const categoriaElement = document.getElementById('servizio-categoria');
+            
+            if (nomeElement) nomeElement.value = servizio.nome || '';
+            if (prezzoElement) prezzoElement.value = servizio.prezzoBase || '';
+            if (descrizioneElement) descrizioneElement.value = servizio.descrizione || '';
+            if (categoriaElement) categoriaElement.value = servizio.categoria || 'altro';
+        }
+
+        function clearServizioForm() {
+            const nomeElement = document.getElementById('servizio-nome');
+            const prezzoElement = document.getElementById('servizio-prezzo');
+            const descrizioneElement = document.getElementById('servizio-descrizione');
+            const categoriaElement = document.getElementById('servizio-categoria');
+            
+            if (nomeElement) nomeElement.value = '';
+            if (prezzoElement) prezzoElement.value = '';
+            if (descrizioneElement) descrizioneElement.value = '';
+            if (categoriaElement) categoriaElement.value = 'altro';
+        }
+
+        function salvaServizio() {
+            try {
+                const nome = document.getElementById('servizio-nome').value.trim();
+                const prezzo = parseInt(document.getElementById('servizio-prezzo').value);
+                const descrizione = document.getElementById('servizio-descrizione').value.trim();
+                const categoria = document.getElementById('servizio-categoria').value;
+
+                if (!nome || !prezzo) {
+                    alert('Per favore compila tutti i campi obbligatori');
+                    return;
+                }
+
+                if (currentServizio) {
+                    const index = serviziDisponibili.findIndex(s => s.id === currentServizio.id);
+                    if (index !== -1) {
+                        serviziDisponibili[index] = {
+                            ...currentServizio,
+                            nome, prezzoBase: prezzo, descrizione, categoria,
+                            ultimaModifica: new Date().toISOString().split('T')[0]
+                        };
+                    }
+                } else {
+                    const maxId = serviziDisponibili.length > 0 ? Math.max(...serviziDisponibili.map(s => s.id)) : 0;
+                    const nuovoServizio = {
+                        id: maxId + 1, nome, prezzoBase: prezzo, descrizione, categoria,
+                        ultimaModifica: new Date().toISOString().split('T')[0]
+                    };
+                    serviziDisponibili.push(nuovoServizio);
+                }
+
+                updateServiziStats();
+                renderServiziTable();
+                
+                const modal = document.getElementById('servizio-modal');
+                if (modal) modal.classList.add('hidden');
+                
+                currentServizio = null;
+                
+                alert(currentServizio ? 'Servizio aggiornato con successo!' : 'Servizio creato con successo!');
+            } catch (error) {
+                console.error('Errore nel salvare il servizio:', error);
+                alert('Errore nel salvare il servizio');
+            }
+        }
+
+        function editServizio(id) {
+            currentServizio = serviziDisponibili.find(s => s.id === id);
+            openServizioModal();
+        }
+
+        function deleteServizio(id) {
+            if (confirm('Sei sicuro di voler eliminare questo servizio?')) {
+                serviziDisponibili = serviziDisponibili.filter(s => s.id !== id);
+                updateServiziStats();
+                renderServiziTable();
+            }
+        }
+
+        // Funzioni per gestione contratti
+        function openContrattoModal() {
+            const modal = document.getElementById('contratto-modal');
+            const title = document.getElementById('contratto-modal-title');
+            
+            if (!modal || !title) return;
+            
+            if (currentContratto) {
+                title.textContent = `Modifica: ${currentContratto.nome}`;
+                populateContrattoForm(currentContratto);
+            } else {
+                title.textContent = 'Carica Template Contratto';
+                clearContrattoForm();
+            }
+            
+            populateContrattoServizi();
+            modal.classList.remove('hidden');
+        }
+
+        function populateContrattoServizi() {
+            const selectElement = document.getElementById('contratto-servizio');
+            if (!selectElement) return;
+            
+            selectElement.innerHTML = '<option value="">Seleziona servizio...</option>';
+            selectElement.innerHTML += '<option value="generale">Generale (per tutti)</option>';
+            
+            serviziDisponibili.forEach(servizio => {
+                const option = document.createElement('option');
+                option.value = servizio.id;
+                option.textContent = servizio.nome;
+                selectElement.appendChild(option);
+            });
+        }
+
+        function populateContrattoForm(contratto) {
+            const nomeElement = document.getElementById('contratto-nome');
+            const servizioElement = document.getElementById('contratto-servizio');
+            const tipoElement = document.getElementById('contratto-tipo');
+            
+            if (nomeElement) nomeElement.value = contratto.nome || '';
+            if (servizioElement) servizioElement.value = contratto.servizioId || '';
+            if (tipoElement) tipoElement.value = contratto.tipo || 'contratto';
+        }
+
+        function clearContrattoForm() {
+            const nomeElement = document.getElementById('contratto-nome');
+            const servizioElement = document.getElementById('contratto-servizio');
+            const tipoElement = document.getElementById('contratto-tipo');
+            const fileElement = document.getElementById('contratto-file');
+            
+            if (nomeElement) nomeElement.value = '';
+            if (servizioElement) servizioElement.value = '';
+            if (tipoElement) tipoElement.value = 'contratto';
+            if (fileElement) fileElement.value = '';
+        }
+
+        function salvaContratto() {
+            try {
+                const nome = document.getElementById('contratto-nome').value.trim();
+                const servizioId = document.getElementById('contratto-servizio').value;
+                const tipo = document.getElementById('contratto-tipo').value;
+                const file = document.getElementById('contratto-file').files[0];
+
+                if (!nome || !servizioId || !file) {
+                    alert('Per favore compila tutti i campi e seleziona un file');
+                    return;
+                }
+
+                let servizioNome = 'Generale';
+                if (servizioId !== 'generale') {
+                    const servizio = serviziDisponibili.find(s => s.id == servizioId);
+                    if (servizio) {
+                        servizioNome = servizio.nome;
+                    }
+                }
+
+                if (currentContratto) {
+                    const index = contratti.findIndex(c => c.id === currentContratto.id);
+                    if (index !== -1) {
+                        contratti[index] = {
+                            ...currentContratto,
+                            nome, servizioId: servizioId === 'generale' ? null : parseInt(servizioId),
+                            servizioNome, tipo, file: file.name
+                        };
+                    }
+                } else {
+                    const maxId = contratti.length > 0 ? Math.max(...contratti.map(c => c.id)) : 0;
+                    const nuovoContratto = {
+                        id: maxId + 1, nome,
+                        servizioId: servizioId === 'generale' ? null : parseInt(servizioId),
+                        servizioNome, tipo, file: file.name,
+                        dataCaricamento: new Date().toISOString().split('T')[0]
+                    };
+                    contratti.push(nuovoContratto);
+                }
+
+                updateDashboard();
+                renderContrattiTable();
+                
+                const modal = document.getElementById('contratto-modal');
+                if (modal) modal.classList.add('hidden');
+                
+                currentContratto = null;
+                
+                alert(currentContratto ? 'Template aggiornato con successo!' : 'Template caricato con successo!');
+            } catch (error) {
+                console.error('Errore nel salvare il template:', error);
+                alert('Errore nel salvare il template');
+            }
+        }
+
+        function editContratto(id) {
+            currentContratto = contratti.find(c => c.id === id);
+            openContrattoModal();
+        }
+
+        function deleteContratto(id) {
+            if (confirm('Sei sicuro di voler eliminare questo template?')) {
+                contratti = contratti.filter(c => c.id !== id);
+                updateDashboard();
+                renderContrattiTable();
+                alert('Template eliminato con successo!');
+            }
+        }
+
+        function downloadTemplate(id) {
+            const contratto = contratti.find(c => c.id === id);
+            if (contratto) {
+                alert(`Download template: ${contratto.nome}\nFile: ${contratto.file}\n\n(Funzionalità download reale da implementare)`);
+            }
+        }
+
+        // Funzione per generare contratti PDF
+        function generaContratto(tipo) {
+            if (!currentCliente && !document.getElementById('nome').value) {
+                alert('Salva prima i dati del cliente per poter generare i contratti');
+                return;
+            }
+            
+            const clienteData = currentCliente || {
+                nome: document.getElementById('nome').value,
+                azienda: document.getElementById('azienda').value,
+                email: document.getElementById('email').value,
+                telefono: document.getElementById('telefono').value,
+                partitaIva: document.getElementById('partitaIva').value,
+                codFiscale: document.getElementById('codFiscale').value,
+                indirizzo: document.getElementById('indirizzo').value
+            };
+            
+            let tipoTemplate = '';
+            switch(tipo) {
+                case 'clienti': tipoTemplate = 'contratto'; break;
+                case 'partner': tipoTemplate = 'contratto'; break;
+                case 'preventivi': tipoTemplate = 'preventivo'; break;
+                default: tipoTemplate = tipo;
+            }
+            
+            const templateTrovato = contratti.find(c => c.tipo === tipoTemplate || c.servizioNome === 'Generale');
+            
+            if (!templateTrovato) {
+                alert(`Nessun template disponibile per "${tipo}". Carica prima un template nella sezione Template Contratti.`);
+                return;
+            }
+            
+            alert(`🔄 GENERAZIONE CONTRATTO PDF\n\n` +
+                  `Cliente: ${clienteData.nome}\n` +
+                  `Azienda: ${clienteData.azienda}\n` +
+                  `Template: ${templateTrovato.nome}\n` +
+                  `Tipo: ${tipo}\n\n` +
+                  `✅ Template compilato con i dati del cliente\n` +
+                  `📄 PDF generato automaticamente\n` +
+                  `📧 Pronto per invio via email\n\n` +
+                  `Placeholder sostituiti:\n` +
+                  `{{NOME}} → ${clienteData.nome}\n` +
+                  `{{AZIENDA}} → ${clienteData.azienda}\n` +
+                  `{{EMAIL}} → ${clienteData.email}\n` +
+                  `{{PARTITA_IVA}} → ${clienteData.partitaIva}\n` +
+                  `{{DATA_OGGI}} → ${new Date().toLocaleDateString('it-IT')}\n\n` +
+                  `(Integrazione con generazione PDF da implementare)`);
+        }
+
+        function scaricaDocumento(nomeDocumento) {
+            alert(`💾 DOWNLOAD DOCUMENTO\n\n` +
+                  `Scaricamento: ${nomeDocumento}\n\n` +
+                  `✅ Download avviato\n` +
+                  `📁 File salvato nella cartella Download\n\n` +
+                  `(Funzionalità download reale da implementare)`);
+        }
+
+        // Inizializzazione quando il DOM è pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                updateDateTime();
+                updateDashboard('sempre');
+                updateServiziStats();
+                renderClientiTable();
+                renderServiziTable();
+                renderContrattiTable();
+                initEventListeners();
+                
+                setInterval(updateDateTime, 60000);
+            } catch (error) {
+                console.error('Errore durante l\'inizializzazione:', error);
             }
         });
     </script>
